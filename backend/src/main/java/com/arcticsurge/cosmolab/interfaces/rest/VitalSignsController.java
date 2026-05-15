@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -43,7 +44,7 @@ public class VitalSignsController {
         VitalSigns v = new VitalSigns();
         v.setCompositionId(compositionId);
         v.setRecordedBy(request.recordedBy());
-        v.setRecordedAt(request.recordedAt() != null ? request.recordedAt() : Instant.now());
+        v.setRecordedAt(request.recordedAt());  // null → @PrePersist sets Instant.now()
         v.setSystolicBp(request.systolicBp());
         v.setDiastolicBp(request.diastolicBp());
         v.setHeartRate(request.heartRate());
@@ -73,14 +74,15 @@ public class VitalSignsController {
     }
 
     @Operation(summary = "Get latest vital signs for an EHR",
-               description = "Returns the most recent observation. Returns an empty 200 body if no observations have been recorded.")
-    @ApiResponse(responseCode = "200", description = "Latest vitals returned (null body if none recorded)")
+               description = "Returns the most recent observation. Returns 204 No Content if no observations have been recorded.")
+    @ApiResponse(responseCode = "200", description = "Latest vitals returned")
+    @ApiResponse(responseCode = "204", description = "No observations recorded yet")
     @ApiResponse(responseCode = "404", description = "EHR not found",
                  content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     @GetMapping("/api/v1/ehr/{ehrId}/vitals/latest")
-    VitalSignsResponse latest(@PathVariable UUID ehrId) {
+    ResponseEntity<VitalSignsResponse> latest(@PathVariable UUID ehrId) {
         return vitalSignsService.getLatest(ehrId)
-                .map(VitalSignsResponse::from)
-                .orElse(null);
+                .map(v -> ResponseEntity.ok(VitalSignsResponse.from(v)))
+                .orElseGet(() -> ResponseEntity.<VitalSignsResponse>noContent().build());
     }
 }

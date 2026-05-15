@@ -2,6 +2,7 @@ package com.arcticsurge.cosmolab.interfaces.rest;
 
 import com.arcticsurge.cosmolab.application.composition.CompositionNotFoundException;
 import com.arcticsurge.cosmolab.application.ehr.EhrNotFoundException;
+import com.arcticsurge.cosmolab.application.evaluation.ProblemListEntryNotFoundException;
 import com.arcticsurge.cosmolab.application.patient.PatientNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,7 +29,8 @@ public class GlobalExceptionHandler {
         return pd;
     }
 
-    @ExceptionHandler({PatientNotFoundException.class, EhrNotFoundException.class, CompositionNotFoundException.class})
+    @ExceptionHandler({PatientNotFoundException.class, EhrNotFoundException.class,
+                        CompositionNotFoundException.class, ProblemListEntryNotFoundException.class})
     ProblemDetail handleNotFound(RuntimeException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }

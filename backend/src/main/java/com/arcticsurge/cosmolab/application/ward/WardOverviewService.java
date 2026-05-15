@@ -31,40 +31,42 @@ public class WardOverviewService {
     private final ProblemListRepository problemListRepository;
 
     public List<WardPatientSummary> getOverview(String wardId) {
-        List<Patient> patients = patientRepository
+        return patientRepository
                 .findByWardAndStatus(wardId, PatientStatus.ACTIVE, PageRequest.of(0, 100))
-                .getContent();
+                .getContent()
+                .stream()
+                .flatMap(patient -> ehrRepository.findBySubjectId(patient.getId())
+                        .map(ehr -> buildSummary(patient, ehr))
+                        .stream())
+                .toList();
+    }
 
-        List<WardPatientSummary> summaries = new ArrayList<>();
-        for (Patient patient : patients) {
-            Optional<EhrRecord> ehr = ehrRepository.findBySubjectId(patient.getId());
-            if (ehr.isEmpty()) continue;
-
-            UUID ehrId = ehr.get().getEhrId();
-            Optional<VitalSigns> latestVitals = vitalSignsRepository.findLatestByEhrId(ehrId);
-            long activeProblemCount = problemListRepository.countByEhrIdAndStatus(ehrId, ProblemStatus.ACTIVE);
-
-            summaries.add(new WardPatientSummary(
-                    patient,
-                    ehr.get(),
-                    latestVitals.orElse(null),
-                    activeProblemCount,
-                    deriveFlags(latestVitals.orElse(null))
-            ));
-        }
-        return summaries;
+    private WardPatientSummary buildSummary(Patient patient, EhrRecord ehr) {
+        UUID ehrId = ehr.getEhrId();
+        Optional<VitalSigns> vitals = vitalSignsRepository.findLatestByEhrId(ehrId);
+        long activeProblemCount = problemListRepository.countByEhrIdAndStatus(ehrId, ProblemStatus.ACTIVE);
+        return new WardPatientSummary(
+                patient,
+                ehr,
+                vitals.orElse(null),
+                activeProblemCount,
+                vitals.map(this::deriveFlags).orElseGet(List::of)
+        );
     }
 
     private List<String> deriveFlags(VitalSigns v) {
-        List<String> flags = new ArrayList<>();
-        if (v == null) return flags;
-        if (v.getSystolicBp() != null && v.getSystolicBp() > 140) flags.add("systolicBP:HIGH");
-        if (v.getSystolicBp() != null && v.getSystolicBp() < 90)  flags.add("systolicBP:LOW");
-        if (v.getHeartRate() != null && v.getHeartRate() > 100)   flags.add("heartRate:HIGH");
-        if (v.getHeartRate() != null && v.getHeartRate() < 60)    flags.add("heartRate:LOW");
-        if (v.getTemperature() != null && v.getTemperature().compareTo(new BigDecimal("37.2")) > 0) flags.add("temperature:HIGH");
-        if (v.getOxygenSaturation() != null && v.getOxygenSaturation().compareTo(new BigDecimal("95")) < 0) flags.add("oxygenSaturation:LOW");
-        return flags;
+        var flags = new ArrayList<String>();
+        Optional.ofNullable(v.getSystolicBp()).filter(bp -> bp > 140).ifPresent(bp -> flags.add("systolicBP:HIGH"));
+        Optional.ofNullable(v.getSystolicBp()).filter(bp -> bp < 90).ifPresent(bp -> flags.add("systolicBP:LOW"));
+        Optional.ofNullable(v.getHeartRate()).filter(hr -> hr > 100).ifPresent(hr -> flags.add("heartRate:HIGH"));
+        Optional.ofNullable(v.getHeartRate()).filter(hr -> hr < 60).ifPresent(hr -> flags.add("heartRate:LOW"));
+        Optional.ofNullable(v.getTemperature())
+                .filter(t -> t.compareTo(new BigDecimal("37.2")) > 0)
+                .ifPresent(t -> flags.add("temperature:HIGH"));
+        Optional.ofNullable(v.getOxygenSaturation())
+                .filter(s -> s.compareTo(new BigDecimal("95")) < 0)
+                .ifPresent(s -> flags.add("oxygenSaturation:LOW"));
+        return List.copyOf(flags);
     }
 
     public record WardPatientSummary(

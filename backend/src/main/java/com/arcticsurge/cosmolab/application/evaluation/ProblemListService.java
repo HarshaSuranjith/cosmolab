@@ -18,15 +18,14 @@ public class ProblemListService {
     private final ProblemListRepository problemListRepository;
 
     public List<ProblemListEntry> listByEhr(UUID ehrId, ProblemStatus status) {
-        if (status != null) {
-            return problemListRepository.findByEhrIdAndStatus(ehrId, status);
-        }
-        return problemListRepository.findByEhrId(ehrId);
+        return status != null
+                ? problemListRepository.findByEhrIdAndStatus(ehrId, status)
+                : problemListRepository.findByEhrId(ehrId);
     }
 
     public ProblemListEntry getById(UUID id) {
         return problemListRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Problem entry " + id + " not found"));
+                .orElseThrow(() -> new ProblemListEntryNotFoundException(id));
     }
 
     @Transactional

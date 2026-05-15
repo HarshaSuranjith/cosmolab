@@ -25,10 +25,9 @@ public class CompositionService {
     }
 
     public Page<Composition> listByEhr(UUID ehrId, CompositionType type, Pageable pageable) {
-        if (type != null) {
-            return compositionRepository.findByEhrIdAndType(ehrId, type, pageable);
-        }
-        return compositionRepository.findByEhrId(ehrId, pageable);
+        return type != null
+                ? compositionRepository.findByEhrIdAndType(ehrId, type, pageable)
+                : compositionRepository.findByEhrId(ehrId, pageable);
     }
 
     @Transactional
