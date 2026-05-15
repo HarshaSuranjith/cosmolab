@@ -3,6 +3,7 @@ package com.arcticsurge.cosmolab.application.composition;
 import com.arcticsurge.cosmolab.domain.composition.Composition;
 import com.arcticsurge.cosmolab.domain.composition.CompositionRepository;
 import com.arcticsurge.cosmolab.domain.composition.CompositionType;
+import com.arcticsurge.cosmolab.infrastructure.messaging.ClinicalEventPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,7 @@ import java.util.UUID;
 public class CompositionService {
 
     private final CompositionRepository compositionRepository;
+    private final ClinicalEventPublisher eventPublisher;
 
     public Composition getById(UUID id, UUID ehrId) {
         return compositionRepository.findById(id)
@@ -32,7 +34,10 @@ public class CompositionService {
 
     @Transactional
     public Composition create(Composition composition) {
-        return compositionRepository.save(composition);
+        Composition saved = compositionRepository.save(composition);
+        eventPublisher.publishClinicalEvent("note.created", saved.getId(), saved.getType().name());
+        eventPublisher.publishAuditEvent(saved.getId(), "note.created:" + saved.getType().name());
+        return saved;
     }
 
     @Transactional
@@ -42,6 +47,8 @@ public class CompositionService {
         existing.setStartTime(updated.getStartTime());
         existing.setFacilityName(updated.getFacilityName());
         existing.setStatus(updated.getStatus());
-        return compositionRepository.save(existing);
+        Composition saved = compositionRepository.save(existing);
+        eventPublisher.publishClinicalEvent("note.updated", saved.getId(), saved.getType().name());
+        return saved;
     }
 }

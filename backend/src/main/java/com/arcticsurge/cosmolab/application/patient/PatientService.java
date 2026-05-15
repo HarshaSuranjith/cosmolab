@@ -3,6 +3,7 @@ package com.arcticsurge.cosmolab.application.patient;
 import com.arcticsurge.cosmolab.domain.patient.Patient;
 import com.arcticsurge.cosmolab.domain.patient.PatientRepository;
 import com.arcticsurge.cosmolab.domain.patient.PatientStatus;
+import com.arcticsurge.cosmolab.infrastructure.messaging.ClinicalEventPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,7 @@ import java.util.UUID;
 public class PatientService {
 
     private final PatientRepository patientRepository;
+    private final ClinicalEventPublisher eventPublisher;
 
     public Patient getById(UUID id) {
         return patientRepository.findById(id)
@@ -41,7 +43,10 @@ public class PatientService {
 
     @Transactional
     public Patient create(Patient patient) {
-        return patientRepository.save(patient);
+        Patient saved = patientRepository.save(patient);
+        eventPublisher.publishClinicalEvent("patient.created", saved.getId(), saved.getPersonalNumber());
+        eventPublisher.publishAuditEvent(saved.getId(), "patient.created:" + saved.getPersonalNumber());
+        return saved;
     }
 
     @Transactional
@@ -52,7 +57,10 @@ public class PatientService {
         existing.setWard(updated.getWard());
         existing.setStatus(updated.getStatus());
         existing.setGender(updated.getGender());
-        return patientRepository.save(existing);
+        Patient saved = patientRepository.save(existing);
+        eventPublisher.publishClinicalEvent("patient.updated", saved.getId(), saved.getPersonalNumber());
+        eventPublisher.publishAuditEvent(saved.getId(), "patient.updated:" + saved.getPersonalNumber());
+        return saved;
     }
 
     @Transactional
@@ -60,5 +68,7 @@ public class PatientService {
         Patient patient = getById(id);
         patient.setStatus(PatientStatus.DISCHARGED);
         patientRepository.save(patient);
+        eventPublisher.publishClinicalEvent("patient.discharged", patient.getId(), patient.getPersonalNumber());
+        eventPublisher.publishAuditEvent(patient.getId(), "patient.discharged:" + patient.getPersonalNumber());
     }
 }
