@@ -1,0 +1,143 @@
+name: cosmolab
+
+services:
+
+  # ── Database ─────────────────────────────────────────────────────────────────
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "CosmoLab@2024"
+      MSSQL_PID: Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo > /dev/tcp/localhost/1433"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 20s
+    networks:
+      - cosmolab-net
+
+  # ── Message broker ────────────────────────────────────────────────────────────
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - ./observability/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+      - "15692:15692"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - cosmolab-net
+
+  # ── Backend ───────────────────────────────────────────────────────────────────
+  cosmolab-backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    environment:
+      MSSQL_HOST: sqlserver
+      MSSQL_USER: sa
+      MSSQL_PASSWORD: CosmoLab@2024
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4317
+    ports:
+      - "8080:8080"
+      - "9990:9990"
+      - "9999:9999"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 90s
+    networks:
+      - cosmolab-net
+
+  # ── Frontend — added in Sprint 4 ─────────────────────────────────────────────
+  # cosmolab-frontend:
+  #   build:
+  #     context: ../cosmolab-frontend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - cosmolab-backend
+  #   networks:
+  #     - cosmolab-net
+
+  # ── Observability ─────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      - cosmolab-net
+
+  loki:
+    image: grafana/loki:latest
+    volumes:
+      - ./observability/loki/loki-config.yml:/etc/loki/local-config.yaml:ro
+    command: ["-config.file=/etc/loki/local-config.yaml"]
+    ports:
+      - "3100:3100"
+    networks:
+      - cosmolab-net
+
+  tempo:
+    image: grafana/tempo:latest
+    volumes:
+      - ./observability/tempo/tempo-config.yml:/etc/tempo.yaml:ro
+    command: ["-config.file=/etc/tempo.yaml"]
+    ports:
+      - "3200:3200"
+      - "4317:4317"
+    networks:
+      - cosmolab-net
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+    volumes:
+      - ./observability/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
+    networks:
+      - cosmolab-net
+
+networks:
+  cosmolab-net:
+    driver: bridge
+
+volumes:
+  mssql-data:
+  grafana-data:

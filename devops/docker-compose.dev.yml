@@ -1,0 +1,27 @@
+name: cosmolab
+
+services:
+  cosmolab-backend:
+    environment:
+      JAVA_OPTS: >-
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+        -Xms512m -Xmx1024m
+        -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:G1HeapRegionSize=16m
+        -Dcom.sun.management.jmxremote=true
+        -Dcom.sun.management.jmxremote.port=9999
+        -Dcom.sun.management.jmxremote.rmi.port=9999
+        -Dcom.sun.management.jmxremote.authenticate=false
+        -Dcom.sun.management.jmxremote.ssl=false
+        -Djava.rmi.server.hostname=0.0.0.0
+      # Enable SQL and Hibernate debug logging
+      LOGGING_LEVEL_COM_ARCTICSURGE_COSMOLAB: DEBUG
+      SPRING_JPA_SHOW_SQL: "true"
+      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "true"
+      SPRING_JPA_PROPERTIES_HIBERNATE_GENERATE_STATISTICS: "true"
+    ports:
+      - "5005:5005"
+    # Mount pre-built WAR for hot-deploy without rebuilding the image:
+    #   1. Build on host: mvn clean package -DskipTests -f ../backend/pom.xml
+    #   2. Start stack: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+    # volumes:
+    #   - ../backend/target/cosmolab-backend.war:/opt/jboss/wildfly/standalone/deployments/ROOT.war

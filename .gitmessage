@@ -1,0 +1,13 @@
+# <type>(<scope>): <short summary — imperative, ≤72 chars>
+#
+# Types: feat | fix | chore | docs | refactor | test | perf | ci
+# Scopes: backend | frontend | devops | testing | docs | infra
+#
+# Body (optional — wrap at 72 chars):
+# Explain WHY, not what. Reference sprint or issue if relevant.
+#
+# Examples:
+#   feat(backend): add WardOverview endpoint with window-function query
+#   fix(infra): add MSSQL TCP healthcheck before backend depends_on
+#   perf(backend): increase Undertow task-max-threads from 32 to 200
+#   test(backend): mock RabbitMQ ConnectionFactory in context load test
