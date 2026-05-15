@@ -73,17 +73,18 @@ services:
     networks:
       - cosmolab-net
 
-  # ── Frontend — added in Sprint 4 ─────────────────────────────────────────────
-  # cosmolab-frontend:
-  #   build:
-  #     context: ../cosmolab-frontend
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "80:80"
-  #   depends_on:
-  #     - cosmolab-backend
-  #   networks:
-  #     - cosmolab-net
+  # ── Frontend ──────────────────────────────────────────────────────────────────
+  cosmolab-frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      cosmolab-backend:
+        condition: service_healthy
+    networks:
+      - cosmolab-net
 
   # ── Observability ─────────────────────────────────────────────────────────────
   prometheus:

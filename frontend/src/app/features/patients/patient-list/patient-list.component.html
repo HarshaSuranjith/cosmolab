@@ -1,0 +1,116 @@
+<div class="page-content">
+  <app-page-header icon="person" title="Patients">
+    <ng-container actions>
+      <button mat-raised-button color="primary"
+              (click)="openNewPatientDialog()"
+              data-testid="new-patient-btn">
+        <mat-icon>add</mat-icon> New Patient
+      </button>
+    </ng-container>
+  </app-page-header>
+
+  <!-- Filter bar -->
+  <mat-card class="filter-card">
+    <mat-card-content>
+      <div class="filter-row">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-icon matPrefix>search</mat-icon>
+          <input matInput
+                 [formControl]="searchCtrl"
+                 placeholder="Search patients…"
+                 data-testid="search-input">
+          <button mat-icon-button matSuffix
+                  *ngIf="searchCtrl.value"
+                  (click)="clearSearch()"
+                  aria-label="Clear">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Ward</mat-label>
+          <mat-select [formControl]="wardCtrl" data-testid="ward-filter">
+            <mat-option value="">All Wards</mat-option>
+            <mat-option *ngFor="let w of wards" [value]="w">{{ w }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select [formControl]="statusCtrl" data-testid="status-filter">
+            <mat-option value="">All Statuses</mat-option>
+            <mat-option *ngFor="let s of statuses" [value]="s">{{ s }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Table area -->
+  <div class="table-container" style="position:relative;">
+    <app-loading-spinner *ngIf="loading$ | async" [overlay]="true"></app-loading-spinner>
+
+    <div *ngIf="error && !(loading$ | async)" class="state-container" data-testid="error-state">
+      <mat-icon color="warn">error_outline</mat-icon>
+      <p>Failed to load patients.</p>
+      <button mat-stroked-button (click)="ngOnInit()" data-testid="retry-btn">Retry</button>
+    </div>
+
+    <div *ngIf="!error && patients.length === 0 && !(loading$ | async)"
+         class="state-container"
+         data-testid="empty-state">
+      <mat-icon>search_off</mat-icon>
+      <p>No patients match your search. Try adjusting the filters.</p>
+    </div>
+
+    <table mat-table [dataSource]="patients" class="full-width mat-table-dense"
+           *ngIf="!error && patients.length > 0">
+
+      <ng-container matColumnDef="patient">
+        <th mat-header-cell *matHeaderCellDef>Patient</th>
+        <td mat-cell *matCellDef="let row" class="patient-cell" data-testid="patient-row"
+            (click)="navigateToPatient(row)">
+          {{ row.lastName }}, {{ row.firstName }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="personalNumber">
+        <th mat-header-cell *matHeaderCellDef>Personnummer</th>
+        <td mat-cell *matCellDef="let row">{{ row.personalNumber }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="ward">
+        <th mat-header-cell *matHeaderCellDef>Ward</th>
+        <td mat-cell *matCellDef="let row">{{ row.ward }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let row">
+          <mat-chip [ngClass]="'status-chip-' + row.status"
+                    [attr.data-testid]="'status-chip-' + row.status">
+            {{ row.status }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="dateOfBirth">
+        <th mat-header-cell *matHeaderCellDef>Date of Birth</th>
+        <td mat-cell *matCellDef="let row">{{ formatDate(row.dateOfBirth) }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+          class="clickable-row"
+          (click)="navigateToPatient(row)"></tr>
+    </table>
+
+    <mat-paginator [length]="totalElements"
+                   [pageSize]="pageSize"
+                   [pageSizeOptions]="[10, 20, 50]"
+                   (page)="onPageChange($event)"
+                   *ngIf="!error && totalElements > 0"
+                   data-testid="patient-paginator">
+    </mat-paginator>
+  </div>
+</div>

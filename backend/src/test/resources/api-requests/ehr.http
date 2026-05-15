@@ -1,0 +1,2 @@
+# Get EHR record
+GET http://localhost:8080/api/v1/ehr/B0000001-0000-0000-0000-000000000001

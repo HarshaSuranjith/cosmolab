@@ -1,0 +1,76 @@
+<mat-sidenav-container class="sidenav-container">
+
+  <mat-sidenav #sidenav
+               class="app-sidenav"
+               [mode]="isMobile ? 'over' : 'side'"
+               [opened]="!isMobile">
+    <mat-nav-list>
+      <a mat-list-item
+         routerLink="/ward/ICU"
+         routerLinkActive="active-link"
+         data-testid="nav-ward">
+        <mat-icon matListItemIcon>local_hospital</mat-icon>
+        <span matListItemTitle>Ward Overview</span>
+      </a>
+      <a mat-list-item
+         routerLink="/patients"
+         routerLinkActive="active-link"
+         data-testid="nav-patients">
+        <mat-icon matListItemIcon>person</mat-icon>
+        <span matListItemTitle>Patients</span>
+      </a>
+      <a mat-list-item
+         routerLink="/admin"
+         routerLinkActive="active-link"
+         data-testid="nav-admin">
+        <mat-icon matListItemIcon>settings</mat-icon>
+        <span matListItemTitle>Admin</span>
+      </a>
+    </mat-nav-list>
+
+    <div class="sidenav-footer">
+      <span class="version-label">v1.0.0-SNAPSHOT</span>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar color="primary" class="app-toolbar">
+      <button mat-icon-button
+              (click)="toggleSidenav()"
+              aria-label="Toggle navigation"
+              data-testid="nav-toggle">
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <span class="toolbar-wordmark">CosmoLab CDSS</span>
+
+      <span class="toolbar-spacer"></span>
+
+      <mat-form-field appearance="outline" class="ward-selector-field">
+        <mat-select
+          placeholder="Ward"
+          (selectionChange)="onWardChange($event.value)"
+          data-testid="ward-selector">
+          <mat-option *ngFor="let ward of wards" [value]="ward">{{ ward }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-icon-button
+              routerLink="/admin"
+              aria-label="Administration"
+              data-testid="admin-link">
+        <mat-icon>settings</mat-icon>
+      </button>
+
+      <div class="user-indicator" data-testid="user-indicator">
+        <span class="user-dot"></span>
+        <span class="user-name">Demo User</span>
+      </div>
+    </mat-toolbar>
+
+    <div class="page-content">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+
+</mat-sidenav-container>

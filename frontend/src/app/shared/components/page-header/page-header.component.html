@@ -1,0 +1,12 @@
+<div class="page-header" data-testid="page-header">
+  <div class="header-left">
+    <mat-icon class="header-icon">{{ icon }}</mat-icon>
+    <div class="header-text">
+      <h1 class="header-title">{{ title }}</h1>
+      <p class="header-subtitle" *ngIf="subtitle">{{ subtitle }}</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <ng-content select="[actions]"></ng-content>
+  </div>
+</div>

@@ -9,6 +9,7 @@
 > - [`docs/cosmolab-architecture.md`](docs/cosmolab-architecture.md) — container diagram, full backend package tree, complete REST API surface, RabbitMQ topology, Flyway sequence
 > - [`docs/backend-java.md`](docs/backend-java.md) — Spring Boot WAR on WildFly conventions, JPA/MSSQL patterns, RabbitMQ integration, validation, error handling
 > - [`docs/frontend-angular.md`](docs/frontend-angular.md) — NgModules structure, routing, mock JWT auth pattern, component conventions, data-testid inventory
+> - [`docs/frontend-ui-spec.md`](docs/frontend-ui-spec.md) — **Sprint 3 source of truth**: design system, colour tokens, page wireframes, component contracts, form specs, data bindings, full data-testid inventory
 > - [`docs/devops-infra.md`](docs/devops-infra.md) — Docker Compose services, WildFly tuning, JMX, JFR, MSSQL container config, Nginx
 > - [`docs/sprint-plan.md`](docs/sprint-plan.md) — sprint-by-sprint tasks and exit criteria
 > - [`docs/testing-e2e.md`](docs/testing-e2e.md) — Playwright config, Page Object Model rules, test scenarios, CI integration
@@ -166,6 +167,7 @@ com.cosmolab
 ### 3.4 Frontend module structure (NgModules)
 
 `CoreModule` is imported once in `AppModule` and contains singleton services and interceptors. `SharedModule` is imported by every feature module and contains reusable components. Feature modules are lazy-loaded via the Angular router. See [`docs/frontend-angular.md`](docs/frontend-angular.md) for routing code, auth pattern, component conventions, and the full `data-testid` attribute inventory.
+> - [`docs/frontend-ui-spec.md`](docs/frontend-ui-spec.md) — **Sprint 3 source of truth**: design system, colour tokens, page wireframes, component contracts, form specs, data bindings, full data-testid inventory
 
 ```
 src/app/
@@ -585,6 +587,7 @@ testing/e2e/
 ```
 
 Selectors use `data-testid` attributes — never CSS classes or text content. See [`docs/frontend-angular.md`](docs/frontend-angular.md) for the full `data-testid` attribute inventory.
+> - [`docs/frontend-ui-spec.md`](docs/frontend-ui-spec.md) — **Sprint 3 source of truth**: design system, colour tokens, page wireframes, component contracts, form specs, data bindings, full data-testid inventory
 
 ### 8.3 Test scenarios (summary)
 

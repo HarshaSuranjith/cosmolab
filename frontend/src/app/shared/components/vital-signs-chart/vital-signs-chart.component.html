@@ -1,0 +1,115 @@
+<ng-container *ngIf="compact; else fullMode">
+  <!-- Compact mode: single row of coloured values -->
+  <div class="compact-row" *ngIf="latest; else noVitals">
+    <span class="vital-cell" [ngClass]="flagFor('systolicBp', latest.systolicBp).cssClass" data-testid="vitals-cell-systolicBp">
+      <ng-container *ngIf="latest.systolicBp !== null">
+        {{ latest.systolicBp }}/{{ latest.diastolicBp ?? '?' }}
+        <mat-icon *ngIf="flagFor('systolicBp', latest.systolicBp).iconName as icon"
+                  class="vital-flag-icon"
+                  data-testid="vital-flag-badge">{{ icon }}</mat-icon>
+      </ng-container>
+      <ng-container *ngIf="latest.systolicBp === null">—</ng-container>
+    </span>
+
+    <span class="vital-cell" [ngClass]="flagFor('heartRate', latest.heartRate).cssClass" data-testid="vitals-cell-heartRate">
+      <ng-container *ngIf="latest.heartRate !== null">
+        {{ latest.heartRate }}
+        <mat-icon *ngIf="flagFor('heartRate', latest.heartRate).iconName as icon"
+                  class="vital-flag-icon"
+                  data-testid="vital-flag-badge">{{ icon }}</mat-icon>
+      </ng-container>
+      <ng-container *ngIf="latest.heartRate === null">—</ng-container>
+    </span>
+
+    <span class="vital-cell" [ngClass]="flagFor('temperature', latest.temperature).cssClass" data-testid="vitals-cell-temperature">
+      <ng-container *ngIf="latest.temperature !== null">
+        {{ latest.temperature }}°
+        <mat-icon *ngIf="flagFor('temperature', latest.temperature).iconName as icon"
+                  class="vital-flag-icon"
+                  data-testid="vital-flag-badge">{{ icon }}</mat-icon>
+      </ng-container>
+      <ng-container *ngIf="latest.temperature === null">—</ng-container>
+    </span>
+
+    <span class="vital-cell" [ngClass]="flagFor('oxygenSaturation', latest.oxygenSaturation).cssClass" data-testid="vitals-cell-spo2">
+      <ng-container *ngIf="latest.oxygenSaturation !== null">
+        {{ latest.oxygenSaturation }}%
+        <mat-icon *ngIf="flagFor('oxygenSaturation', latest.oxygenSaturation).iconName as icon"
+                  class="vital-flag-icon"
+                  data-testid="vital-flag-badge">{{ icon }}</mat-icon>
+      </ng-container>
+      <ng-container *ngIf="latest.oxygenSaturation === null">—</ng-container>
+    </span>
+  </div>
+
+  <ng-template #noVitals>
+    <span class="no-vitals">—</span>
+  </ng-template>
+</ng-container>
+
+<ng-template #fullMode>
+  <div class="full-mode-container">
+    <!-- Empty state -->
+    <div *ngIf="readings.length === 0" class="empty-chart" data-testid="empty-state">
+      <mat-icon>show_chart</mat-icon>
+      <p>No vital signs recorded yet.</p>
+    </div>
+
+    <!-- ngx-charts line chart -->
+    <div *ngIf="readings.length > 0">
+      <ngx-charts-line-chart
+        [view]="[0, 240]"
+        [results]="chartData"
+        [scheme]="colorScheme"
+        [xAxis]="true"
+        [yAxis]="true"
+        [legend]="true"
+        [legendPosition]="legendPosition"
+        [autoScale]="true"
+        [timeline]="false"
+        class="vitals-line-chart">
+      </ngx-charts-line-chart>
+
+      <!-- Dense readings table -->
+      <table class="readings-table mat-table-dense" aria-label="Vital signs readings">
+        <thead>
+          <tr>
+            <th>Recorded</th>
+            <th>BP</th>
+            <th>HR</th>
+            <th>RR</th>
+            <th>Temp</th>
+            <th>SpO₂</th>
+            <th>Weight</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of readings">
+            <td class="caption-text">{{ formatDate(r.recordedAt) }}</td>
+            <td [ngClass]="flagFor('systolicBp', r.systolicBp).cssClass">
+              {{ r.systolicBp !== null ? r.systolicBp + '/' + r.diastolicBp : '—' }}
+              <mat-icon *ngIf="flagFor('systolicBp', r.systolicBp).iconName as icon" class="vital-flag-icon">{{ icon }}</mat-icon>
+            </td>
+            <td [ngClass]="flagFor('heartRate', r.heartRate).cssClass">
+              {{ r.heartRate ?? '—' }}
+              <mat-icon *ngIf="flagFor('heartRate', r.heartRate).iconName as icon" class="vital-flag-icon">{{ icon }}</mat-icon>
+            </td>
+            <td [ngClass]="flagFor('respiratoryRate', r.respiratoryRate).cssClass">
+              {{ r.respiratoryRate ?? '—' }}
+              <mat-icon *ngIf="flagFor('respiratoryRate', r.respiratoryRate).iconName as icon" class="vital-flag-icon">{{ icon }}</mat-icon>
+            </td>
+            <td [ngClass]="flagFor('temperature', r.temperature).cssClass">
+              {{ r.temperature !== null ? r.temperature + '°C' : '—' }}
+              <mat-icon *ngIf="flagFor('temperature', r.temperature).iconName as icon" class="vital-flag-icon">{{ icon }}</mat-icon>
+            </td>
+            <td [ngClass]="flagFor('oxygenSaturation', r.oxygenSaturation).cssClass">
+              {{ r.oxygenSaturation !== null ? r.oxygenSaturation + '%' : '—' }}
+              <mat-icon *ngIf="flagFor('oxygenSaturation', r.oxygenSaturation).iconName as icon" class="vital-flag-icon">{{ icon }}</mat-icon>
+            </td>
+            <td>{{ r.weight !== null ? r.weight + ' kg' : '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</ng-template>

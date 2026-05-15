@@ -10,8 +10,8 @@ alwaysApply: false
 | Sprint | Focus | Status | Exit criterion |
 |---|---|---|---|
 | 1 | Infrastructure + domain model | **DONE** | docker-compose up healthy; Flyway V1-V6 applied; /actuator/health UP |
-| 2 | Backend API + RabbitMQ + unit tests | In progress | All endpoints correct; events in RabbitMQ UI; MockMvc pass |
-| 3 | Angular frontend | Pending | All pages navigable; live data; no console errors |
+| 2 | Backend API + RabbitMQ + unit tests | **DONE** | All endpoints correct; events in RabbitMQ UI; MockMvc pass |
+| 3 | Angular frontend | **In progress** | All pages navigable; live data; no console errors |
 | 4 | Containerisation + Playwright E2E | Pending | Full stack in containers; Playwright green |
 | 5 | Jenkins pipeline | Pending | All 7 stages green; Playwright report published |
 | 6 | Observability + JMeter baseline | Pending | Grafana live under load; JMeter HTML report with p95 |

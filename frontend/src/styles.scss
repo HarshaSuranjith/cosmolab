@@ -1,0 +1,95 @@
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+$cosmolab-primary: mat.define-palette(mat.$teal-palette, 700, 100, 900);
+$cosmolab-accent:  mat.define-palette(mat.$orange-palette, 600, 100, 900);
+$cosmolab-warn:    mat.define-palette(mat.$red-palette, 700);
+
+$cosmolab-theme: mat.define-light-theme((
+  color: (
+    primary: $cosmolab-primary,
+    accent:  $cosmolab-accent,
+    warn:    $cosmolab-warn
+  ),
+  typography: mat.define-typography-config(
+    $font-family: 'Roboto, sans-serif'
+  ),
+  density: -1
+));
+
+@include mat.all-component-themes($cosmolab-theme);
+
+// Global resets
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-size: 14px;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #F5F5F5;
+}
+
+// Dense table variant for clinical data tables
+.mat-table-dense {
+  .mat-mdc-cell, .mat-mdc-header-cell {
+    padding: 6px 12px;
+  }
+
+  .mat-mdc-row {
+    height: 40px;
+    line-height: 1.4;
+  }
+}
+
+// Flagged / critical ward table rows
+tr.row-flagged {
+  border-left: 3px solid #F57C00;
+  background-color: #FFF8E1;
+}
+
+tr.row-critical {
+  border-left: 3px solid #C62828;
+  background-color: #FFEBEE;
+}
+
+// Snackbar error panel
+.snackbar-error {
+  --mdc-snackbar-container-color: #C62828;
+  --mdc-snackbar-supporting-text-color: #ffffff;
+  --mat-snack-bar-button-color: #ffffff;
+}
+
+// Status chip colours (used inline — not Material theming)
+.status-chip-ACTIVE    { background: #E8F5E9 !important; color: #2E7D32 !important; }
+.status-chip-DISCHARGED { background: #EDE7F6 !important; color: #5C6BC0 !important; }
+.status-chip-TRANSFERRED { background: #FFF3E0 !important; color: #E65100 !important; }
+
+// Problem status chip (reduced opacity for resolved/refuted)
+.problem-resolved { opacity: 0.6; }
+
+// Vital sign flag colours
+.vital-normal  { color: #212121; }
+.vital-amber   { color: #F57C00; }
+.vital-red     { color: #C62828; }
+
+// Card elevation reset
+.mat-mdc-card.elevation-0 {
+  box-shadow: none;
+  border: 1px solid #E0E0E0;
+}
+
+// Responsive content max-width
+.page-content {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+// Mat form field full width helper
+.full-width {
+  width: 100%;
+}

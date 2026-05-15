@@ -1,0 +1,105 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.sidenav-container {
+  height: 100%;
+}
+
+.app-sidenav {
+  width: 240px;
+  background-color: #004D40;
+  color: rgba(255, 255, 255, 0.87);
+
+  .mat-mdc-list-item {
+    color: rgba(255, 255, 255, 0.87);
+  }
+
+  mat-icon {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .active-link {
+    background-color: #00695C;
+    color: #B2DFDB;
+
+    mat-icon {
+      color: #B2DFDB;
+    }
+  }
+}
+
+.sidenav-footer {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+
+  .version-label {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: #00695C;
+  height: 64px;
+  gap: 8px;
+}
+
+.toolbar-wordmark {
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  margin-left: 8px;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.ward-selector-field {
+  width: 160px;
+
+  ::ng-deep {
+    .mat-mdc-text-field-wrapper {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .mat-mdc-select-value,
+    .mat-mdc-select-arrow,
+    .mdc-floating-label {
+      color: white !important;
+    }
+
+    .mdc-line-ripple::before,
+    .mdc-line-ripple::after {
+      border-bottom-color: rgba(255, 255, 255, 0.5) !important;
+    }
+  }
+}
+
+.user-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 4px;
+}
+
+.user-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #66BB6A;
+  flex-shrink: 0;
+}
+
+.user-name {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.87);
+}

@@ -1,0 +1,61 @@
+<div class="page-content">
+  <app-page-header icon="settings" title="System Administration"></app-page-header>
+
+  <!-- External link cards -->
+  <div class="links-grid">
+    <mat-card *ngFor="let link of links" class="link-card elevation-0">
+      <mat-card-content>
+        <mat-icon class="link-icon">{{ link.icon }}</mat-icon>
+        <h3 class="link-title">{{ link.title }}</h3>
+        <p class="link-subtitle">{{ link.subtitle }}</p>
+        <a mat-stroked-button
+           [href]="link.url"
+           target="_blank"
+           rel="noopener"
+           [attr.data-testid]="link.testid">
+          Open →
+        </a>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- API Documentation card -->
+  <mat-card class="api-card elevation-0">
+    <mat-card-content>
+      <div class="api-card-inner">
+        <div>
+          <h3 class="link-title">API Documentation</h3>
+          <p class="link-subtitle">Swagger UI (OpenAPI 3)</p>
+        </div>
+        <a mat-stroked-button
+           href="http://localhost:8080/swagger-ui.html"
+           target="_blank"
+           rel="noopener"
+           data-testid="admin-swagger-link">
+          Open Swagger UI →
+        </a>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Health status -->
+  <mat-card class="health-card elevation-0" data-testid="health-status">
+    <mat-card-header><mat-card-title>System Health</mat-card-title></mat-card-header>
+    <mat-card-content>
+      <div class="health-row">
+        <div class="health-item">
+          <mat-icon [style.color]="statusColor(health.status)">{{ statusIcon(health.status) }}</mat-icon>
+          <span>Status: <strong>{{ health.status }}</strong></span>
+        </div>
+        <div class="health-item">
+          <mat-icon [style.color]="statusColor(health.db)">{{ statusIcon(health.db) }}</mat-icon>
+          <span>DB: <strong>{{ health.db }}</strong></span>
+        </div>
+        <div class="health-item">
+          <mat-icon [style.color]="statusColor(health.broker)">{{ statusIcon(health.broker) }}</mat-icon>
+          <span>Broker: <strong>{{ health.broker }}</strong></span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
