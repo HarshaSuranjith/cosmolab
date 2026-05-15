@@ -3,8 +3,8 @@ CREATE TABLE compositions (
     ehr_id           UNIQUEIDENTIFIER NOT NULL,
     composition_type NVARCHAR(50)     NOT NULL,
     author_id        UNIQUEIDENTIFIER NOT NULL,
-    start_time       DATETIME2        NOT NULL,
-    commit_time      DATETIME2        NOT NULL,
+    start_time       DATETIMEOFFSET(6)        NOT NULL,
+    commit_time      DATETIMEOFFSET(6)        NOT NULL,
     facility_name    NVARCHAR(200)    NULL,
     status           NVARCHAR(20)     NOT NULL DEFAULT 'COMPLETE',
 

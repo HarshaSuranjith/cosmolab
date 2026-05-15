@@ -8,7 +8,7 @@ CREATE TABLE problem_list_entries (
     status        NVARCHAR(20)     NOT NULL DEFAULT 'ACTIVE',
     onset_date    DATE             NULL,
     resolved_date DATE             NULL,
-    recorded_at   DATETIME2        NOT NULL,
+    recorded_at   DATETIMEOFFSET(6) NOT NULL,
     recorded_by   UNIQUEIDENTIFIER NOT NULL,
 
     CONSTRAINT fk_problem_composition FOREIGN KEY (composition_id) REFERENCES compositions(id),

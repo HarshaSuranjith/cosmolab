@@ -1,7 +1,7 @@
 CREATE TABLE vital_signs (
     id                 UNIQUEIDENTIFIER NOT NULL DEFAULT NEWSEQUENTIALID() PRIMARY KEY,
     composition_id     UNIQUEIDENTIFIER NOT NULL,
-    recorded_at        DATETIME2        NOT NULL,
+    recorded_at        DATETIMEOFFSET(6) NOT NULL,
     recorded_by        UNIQUEIDENTIFIER NOT NULL,
     systolic_bp        INT              NULL,
     diastolic_bp       INT              NULL,
