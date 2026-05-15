@@ -9,7 +9,7 @@ observability, and data-driven performance optimisation.
 ## Quick Start
 
 ```bash
-git clone git@github.com:HarshaSuranjith/cosmoslab.git
+git clone git@github.com:HarshaSuranjith/cosmolab.git
 cd cosmolab
 docker-compose -f devops/docker-compose.yml up --build
 ```
@@ -33,9 +33,9 @@ docker-compose -f devops/docker-compose.yml up --build
 
 | Layer | Technology | Version | Rationale |
 |---|---|---|---|
-| Frontend | Angular (NgModules) | 17 | Enterprise pattern; closer to legacy COSMIC than standalone components |
-| Backend | Spring Boot WAR | 3.2 / JDK 17 | COSMIC is Spring-based; WAR exercises the real JBoss deployment path |
-| App server | WildFly | 30 | Open-source JBoss; identical runtime to COSMIC production |
+| Frontend | Angular (NgModules) | 17 | Enterprise pattern; modular, maintainable |
+| Backend | Spring Boot WAR | 3.2 / JDK 17 | Enterprise Java; WAR exercises the real JBoss deployment path |
+| App server | WildFly | 30 | Open-source JBoss; production-grade runtime |
 | Database | MS SQL Server | 2022 | `mcr.microsoft.com/mssql/server:2022-latest` (free developer licence) |
 | Message broker | RabbitMQ | 3.12-management | Domain event streaming + audit trail |
 | Schema migrations | Flyway | 9.x | Version-controlled DDL; no manual SQL |
@@ -48,7 +48,7 @@ docker-compose -f devops/docker-compose.yml up --build
 
 ### Why WAR on WildFly, not embedded Tomcat?
 
-COSMIC deploys as a WAR into JBoss/WildFly. CosmoLab replicates this exactly:
+COSMO deploys as a WAR into JBoss/WildFly. CosmoLab replicates this exactly:
 `spring-boot-starter-tomcat` is `provided` scope, `SpringBootServletInitializer` is
 extended, and WildFly controls the Undertow thread pool. This is where the most
 impactful performance tuning happens.

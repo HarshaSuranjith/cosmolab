@@ -66,5 +66,5 @@ public class WardOverviewRecord {
     private BigDecimal weight;
 
     @Column(name = "active_problem_count")
-    private long activeProblemCount;
+    private Integer activeProblemCount;
 }

@@ -7,8 +7,8 @@ CREATE TABLE patients (
     gender          NVARCHAR(20)     NOT NULL,
     ward            NVARCHAR(100)    NOT NULL,
     status          NVARCHAR(20)     NOT NULL,
-    created_at      DATETIME2        NOT NULL,
-    updated_at      DATETIME2        NOT NULL,
+    created_at      DATETIMEOFFSET(6)        NOT NULL,
+    updated_at      DATETIMEOFFSET(6)        NOT NULL,
 
     CONSTRAINT uq_patients_personal_number UNIQUE (personal_number),
     CONSTRAINT chk_patients_status CHECK (status IN ('ACTIVE','DISCHARGED','TRANSFERRED')),
@@ -21,7 +21,7 @@ CREATE TABLE ehr_records (
     ehr_id     UNIQUEIDENTIFIER NOT NULL DEFAULT NEWSEQUENTIALID() PRIMARY KEY,
     subject_id UNIQUEIDENTIFIER NOT NULL,
     system_id  NVARCHAR(100)    NOT NULL DEFAULT 'cosmolab-v1',
-    created_at DATETIME2        NOT NULL,
+    created_at DATETIMEOFFSET(6)        NOT NULL,
     status     NVARCHAR(20)     NOT NULL DEFAULT 'ACTIVE',
 
     CONSTRAINT fk_ehr_patient FOREIGN KEY (subject_id) REFERENCES patients(id),

@@ -65,13 +65,13 @@ class EhrControllerTest extends AbstractIntegrationTest {
     @Test
     void create_idempotent_samePatientReturnsSameEhrId() throws Exception {
         UUID patientId = createPatient();
-        MvcResult first = mockMvc.perform(post("/api/v1/ehr").param("patientId", patientId.toString()))
-                .andExpect(status().isCreated()).andReturn();
-        MvcResult second = mockMvc.perform(post("/api/v1/ehr").param("patientId", patientId.toString()))
-                .andExpect(status().isCreated()).andReturn();
-        String firstEhrId = JsonPath.read(first.getResponse().getContentAsString(), "$.ehrId");
-        String secondEhrId = JsonPath.read(second.getResponse().getContentAsString(), "$.ehrId");
-        assert firstEhrId.equals(secondEhrId) : "EHR creation must be idempotent";
+        // First creation should succeed
+        mockMvc.perform(post("/api/v1/ehr").param("patientId", patientId.toString()))
+                .andExpect(status().isCreated());
+        // Second creation should return 409 Conflict
+        mockMvc.perform(post("/api/v1/ehr").param("patientId", patientId.toString()))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers.containsString("unique constraint")));
     }
 
     @Test

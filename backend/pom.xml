@@ -4,11 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+
+
+    <!-- Multimodule parent -->
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.14</version>
-        <relativePath/>
+        <groupId>com.arcticsurge</groupId>
+        <artifactId>cosmolab</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>com.arcticsurge.cosmolab</groupId>
@@ -17,8 +20,8 @@
     <packaging>war</packaging>
     <name>cosmolab-backend</name>
 
+
     <properties>
-        <java.version>17</java.version>
         <mapstruct.version>1.6.3</mapstruct.version>
     </properties>
 
@@ -173,8 +176,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <environmentVariables>
-                        <!-- Belt-and-suspenders: testcontainers.properties sets ryuk.disabled=true;
-                             this env var covers the case where the classpath file is not found. -->
+                        <DOCKER_HOST>unix:///run/user/1000/docker.sock</DOCKER_HOST>
                         <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
                     </environmentVariables>
                 </configuration>
@@ -198,7 +200,7 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
-            <plugin>
+            <!-- <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <version>0.45.1</version>
@@ -222,7 +224,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin> -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

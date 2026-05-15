@@ -20,11 +20,11 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("CosmoLab Clinical API")
                         .description("""
-                                REST API for CosmoLab — a minimal clinical information system modelling the \
-                                Cambio COSMIC stack. Covers patient demographics, EHR records (openEHR \
+                                REST API for CosmoLab — a minimal clinical information system. Covers patient demographics, EHR records (openEHR \
                                 containment hierarchy: EHR → Composition → Entry), vital signs observations, \
                                 and problem list evaluations. The ward overview endpoint is the primary \
-                                load test target (JMeter / Gatling / k6).""")
+                                load test target (JMeter / Gatling / k6).
+                                """)
                         .version("1.0.0")
                         .contact(new Contact()
                                 .name("Harsha Amarasiri")
