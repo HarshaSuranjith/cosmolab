@@ -1,0 +1,11 @@
+FROM maven:3.9-eclipse-temurin-17-alpine AS build
+WORKDIR /app
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+FROM quay.io/wildfly/wildfly:30.0.1.Final-jdk17
+USER jboss
+COPY --from=build /app/target/cosmolab-backend.war /opt/jboss/wildfly/standalone/deployments/ROOT.war
+

@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  backend:
+    container_name: cosmolab-backend
+    image: archticsurge.com/cosmolab/backend:1.0.0-SNAPSHOT
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      MSSQL_HOST: sqlserver
+      MSSQL_USER: sa
+      MSSQL_PASSWORD: CosmoLab@2024
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4317
+    ports:
+      - "8080:8080"
+      - "9990:9990"
+      - "9999:9999"
+    networks:
+      - cosmolab-net
+  # Uncomment and configure when frontend is ready
+  # cosmolab-frontend:
+  #   image: archticsurge.com/cosmolab/frontend
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - cosmolab-backend
+  #   networks:
+  #     - cosmolab-net
+networks:
+  cosmolab-net:
+    external: true
