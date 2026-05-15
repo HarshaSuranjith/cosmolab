@@ -1,9 +1,9 @@
 package com.arcticsurge.cosmolab.interfaces.rest;
 
 import com.arcticsurge.cosmolab.application.observation.VitalSignsService;
-import com.arcticsurge.cosmolab.domain.observation.VitalSigns;
 import com.arcticsurge.cosmolab.interfaces.rest.dto.VitalSignsRequest;
 import com.arcticsurge.cosmolab.interfaces.rest.dto.VitalSignsResponse;
+import com.arcticsurge.cosmolab.interfaces.rest.mapper.VitalSignsMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -27,6 +27,7 @@ import java.util.UUID;
 public class VitalSignsController {
 
     private final VitalSignsService vitalSignsService;
+    private final VitalSignsMapper vitalSignsMapper;
 
     @Operation(summary = "Record vital signs",
                description = "Creates a vital signs observation under the given composition. recordedAt defaults to the current timestamp if omitted.")
@@ -41,18 +42,8 @@ public class VitalSignsController {
             @Parameter(description = "EHR identifier") @PathVariable UUID ehrId,
             @Parameter(description = "Composition identifier") @PathVariable UUID compositionId,
             @Valid @RequestBody VitalSignsRequest request) {
-        VitalSigns v = new VitalSigns();
-        v.setCompositionId(compositionId);
-        v.setRecordedBy(request.recordedBy());
-        v.setRecordedAt(request.recordedAt());  // null → @PrePersist sets Instant.now()
-        v.setSystolicBp(request.systolicBp());
-        v.setDiastolicBp(request.diastolicBp());
-        v.setHeartRate(request.heartRate());
-        v.setRespiratoryRate(request.respiratoryRate());
-        v.setTemperature(request.temperature());
-        v.setOxygenSaturation(request.oxygenSaturation());
-        v.setWeight(request.weight());
-        return VitalSignsResponse.from(vitalSignsService.record(v));
+        return vitalSignsMapper.toResponse(
+                vitalSignsService.record(vitalSignsMapper.toEntity(request, compositionId)));
     }
 
     @Operation(summary = "List vital signs for an EHR",
@@ -70,7 +61,7 @@ public class VitalSignsController {
         Instant start = from != null ? from : Instant.EPOCH;
         Instant end = to != null ? to : Instant.now();
         return vitalSignsService.listByEhr(ehrId, start, end).stream()
-                .map(VitalSignsResponse::from).toList();
+                .map(vitalSignsMapper::toResponse).toList();
     }
 
     @Operation(summary = "Get latest vital signs for an EHR",
@@ -82,7 +73,8 @@ public class VitalSignsController {
     @GetMapping("/api/v1/ehr/{ehrId}/vitals/latest")
     ResponseEntity<VitalSignsResponse> latest(@PathVariable UUID ehrId) {
         return vitalSignsService.getLatest(ehrId)
-                .map(v -> ResponseEntity.ok(VitalSignsResponse.from(v)))
+                .map(vitalSignsMapper::toResponse)
+                .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.<VitalSignsResponse>noContent().build());
     }
 }

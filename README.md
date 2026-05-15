@@ -1,12 +1,8 @@
 # CosmoLab
 
-A minimal clinical information system that mirrors the Cambio COSMIC technology stack.
+A minimal clinical information system that implements a minimal version of OpenEHR as a standard.
 Built as a full-cycle portfolio project covering backend engineering, containerisation,
 observability, and data-driven performance optimisation.
-
-**Two goals in one codebase:**
-- Hands-on muscle memory with the exact stack Cambio COSMIC runs (Spring Boot WAR on WildFly, MS SQL Server, RabbitMQ, JMeter/Gatling/k6, JFR profiling)
-- Portfolio evidence demonstrating backend depth, DDD-lite architecture, CI/CD, and performance engineering
 
 ---
 

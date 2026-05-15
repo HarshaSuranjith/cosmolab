@@ -3,6 +3,8 @@ package com.arcticsurge.cosmolab.application.evaluation;
 import com.arcticsurge.cosmolab.domain.evaluation.ProblemListEntry;
 import com.arcticsurge.cosmolab.domain.evaluation.ProblemListRepository;
 import com.arcticsurge.cosmolab.domain.evaluation.ProblemStatus;
+import com.arcticsurge.cosmolab.interfaces.rest.dto.ProblemRequest;
+import com.arcticsurge.cosmolab.interfaces.rest.mapper.ProblemMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,7 @@ import java.util.UUID;
 public class ProblemListService {
 
     private final ProblemListRepository problemListRepository;
+    private final ProblemMapper problemMapper;
 
     public List<ProblemListEntry> listByEhr(UUID ehrId, ProblemStatus status) {
         return status != null
@@ -34,12 +37,9 @@ public class ProblemListService {
     }
 
     @Transactional
-    public ProblemListEntry update(UUID id, ProblemListEntry updated) {
+    public ProblemListEntry update(UUID id, ProblemRequest request) {
         ProblemListEntry existing = getById(id);
-        existing.setDisplayName(updated.getDisplayName());
-        existing.setSeverity(updated.getSeverity());
-        existing.setStatus(updated.getStatus());
-        existing.setResolvedDate(updated.getResolvedDate());
-        return problemListRepository.save(existing);
+        problemMapper.merge(request, existing);
+        return existing;
     }
 }

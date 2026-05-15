@@ -1,5 +1,6 @@
 package com.arcticsurge.cosmolab.domain.composition;
 
+import com.arcticsurge.cosmolab.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,11 +14,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Composition {
-
-    @Id
-    @Column(columnDefinition = "UNIQUEIDENTIFIER")
-    private UUID id;
+public class Composition extends BaseEntity {
 
     @Column(name = "ehr_id", columnDefinition = "UNIQUEIDENTIFIER", nullable = false)
     private UUID ehrId;
@@ -44,7 +41,6 @@ public class Composition {
 
     @PrePersist
     void onCreate() {
-        if (id == null) id = UUID.randomUUID();
         commitTime = Instant.now();
         if (startTime == null) startTime = commitTime;
         if (status == null) status = CompositionStatus.COMPLETE;

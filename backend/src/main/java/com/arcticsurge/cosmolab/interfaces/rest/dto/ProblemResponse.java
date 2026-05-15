@@ -1,6 +1,5 @@
 package com.arcticsurge.cosmolab.interfaces.rest.dto;
 
-import com.arcticsurge.cosmolab.domain.evaluation.ProblemListEntry;
 import com.arcticsurge.cosmolab.domain.evaluation.ProblemStatus;
 import com.arcticsurge.cosmolab.domain.evaluation.Severity;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -21,10 +20,4 @@ public record ProblemResponse(
         @Schema(description = "Date symptoms or diagnosis began") LocalDate onsetDate,
         @Schema(description = "Date the problem was resolved — null if still active") LocalDate resolvedDate,
         @Schema(description = "Timestamp when this entry was recorded") Instant recordedAt
-) {
-    public static ProblemResponse from(ProblemListEntry e) {
-        return new ProblemResponse(e.getId(), e.getEhrId(), e.getCompositionId(),
-                e.getIcd10Code(), e.getDisplayName(), e.getSeverity(), e.getStatus(),
-                e.getOnsetDate(), e.getResolvedDate(), e.getRecordedAt());
-    }
-}
+) {}

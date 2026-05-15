@@ -27,10 +27,8 @@ public class EhrService {
 
     @Transactional
     public EhrRecord create(UUID patientId) {
-        return ehrRepository.findBySubjectId(patientId).orElseGet(() -> {
-            EhrRecord ehr = new EhrRecord();
-            ehr.setSubjectId(patientId);
-            return ehrRepository.save(ehr);
-        });
+        EhrRecord ehr = new EhrRecord();
+        ehr.setSubjectId(patientId);
+        return ehrRepository.save(ehr);
     }
 }

@@ -1,10 +1,10 @@
 package com.arcticsurge.cosmolab.interfaces.rest;
 
 import com.arcticsurge.cosmolab.application.evaluation.ProblemListService;
-import com.arcticsurge.cosmolab.domain.evaluation.ProblemListEntry;
 import com.arcticsurge.cosmolab.domain.evaluation.ProblemStatus;
 import com.arcticsurge.cosmolab.interfaces.rest.dto.ProblemRequest;
 import com.arcticsurge.cosmolab.interfaces.rest.dto.ProblemResponse;
+import com.arcticsurge.cosmolab.interfaces.rest.mapper.ProblemMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -27,6 +27,7 @@ import java.util.UUID;
 public class ProblemListController {
 
     private final ProblemListService problemListService;
+    private final ProblemMapper problemMapper;
 
     @Operation(summary = "Add a problem to the patient's problem list")
     @ApiResponse(responseCode = "201", description = "Problem entry created")
@@ -37,15 +38,8 @@ public class ProblemListController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     ProblemResponse create(@PathVariable UUID ehrId, @Valid @RequestBody ProblemRequest request) {
-        ProblemListEntry entry = new ProblemListEntry();
-        entry.setEhrId(ehrId);
-        entry.setCompositionId(request.compositionId());
-        entry.setIcd10Code(request.icd10Code());
-        entry.setDisplayName(request.displayName());
-        entry.setSeverity(request.severity());
-        entry.setRecordedBy(request.recordedBy());
-        entry.setOnsetDate(request.onsetDate());
-        return ProblemResponse.from(problemListService.create(entry));
+        return problemMapper.toResponse(
+                problemListService.create(problemMapper.toEntity(request, ehrId)));
     }
 
     @Operation(summary = "List problems for an EHR",
@@ -59,7 +53,7 @@ public class ProblemListController {
             @Parameter(description = "Filter by problem status — omit to return all statuses")
             @RequestParam(required = false) ProblemStatus status) {
         return problemListService.listByEhr(ehrId, status).stream()
-                .map(ProblemResponse::from).toList();
+                .map(problemMapper::toResponse).toList();
     }
 
     @Operation(summary = "Get a problem entry by ID")
@@ -68,7 +62,7 @@ public class ProblemListController {
                  content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     @GetMapping("/{id}")
     ProblemResponse getById(@PathVariable UUID ehrId, @PathVariable UUID id) {
-        return ProblemResponse.from(problemListService.getById(id));
+        return problemMapper.toResponse(problemListService.getById(id));
     }
 
     @Operation(summary = "Update a problem entry",
@@ -81,9 +75,6 @@ public class ProblemListController {
     @PutMapping("/{id}")
     ProblemResponse update(@PathVariable UUID ehrId, @PathVariable UUID id,
                            @Valid @RequestBody ProblemRequest request) {
-        ProblemListEntry updated = new ProblemListEntry();
-        updated.setDisplayName(request.displayName());
-        updated.setSeverity(request.severity());
-        return ProblemResponse.from(problemListService.update(id, updated));
+        return problemMapper.toResponse(problemListService.update(id, request));
     }
 }

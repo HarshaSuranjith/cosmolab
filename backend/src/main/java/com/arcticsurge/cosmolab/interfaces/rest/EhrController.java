@@ -2,6 +2,7 @@ package com.arcticsurge.cosmolab.interfaces.rest;
 
 import com.arcticsurge.cosmolab.application.ehr.EhrService;
 import com.arcticsurge.cosmolab.interfaces.rest.dto.EhrResponse;
+import com.arcticsurge.cosmolab.interfaces.rest.mapper.EhrMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -21,6 +22,7 @@ import java.util.UUID;
 public class EhrController {
 
     private final EhrService ehrService;
+    private final EhrMapper ehrMapper;
 
     @Operation(summary = "Create an EHR for a patient",
                description = "Each patient has exactly one EHR (enforced by unique constraint on subject_id).")
@@ -32,7 +34,7 @@ public class EhrController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     EhrResponse create(@RequestParam UUID patientId) {
-        return EhrResponse.from(ehrService.create(patientId));
+        return ehrMapper.toResponse(ehrService.create(patientId));
     }
 
     @Operation(summary = "Get EHR by EHR ID")
@@ -41,7 +43,7 @@ public class EhrController {
                  content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     @GetMapping("/{ehrId}")
     EhrResponse getById(@PathVariable UUID ehrId) {
-        return EhrResponse.from(ehrService.getById(ehrId));
+        return ehrMapper.toResponse(ehrService.getById(ehrId));
     }
 
     @Operation(summary = "Get EHR by patient ID")
@@ -50,6 +52,6 @@ public class EhrController {
                  content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     @GetMapping("/subject/{patientId}")
     EhrResponse getByPatient(@PathVariable UUID patientId) {
-        return EhrResponse.from(ehrService.getByPatientId(patientId));
+        return ehrMapper.toResponse(ehrService.getByPatientId(patientId));
     }
 }

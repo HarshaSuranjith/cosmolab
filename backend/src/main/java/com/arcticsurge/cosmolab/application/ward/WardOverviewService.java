@@ -1,20 +1,14 @@
 package com.arcticsurge.cosmolab.application.ward;
 
-import com.arcticsurge.cosmolab.domain.evaluation.ProblemListRepository;
-import com.arcticsurge.cosmolab.domain.evaluation.ProblemStatus;
-import com.arcticsurge.cosmolab.domain.ehr.EhrRecord;
-import com.arcticsurge.cosmolab.domain.ehr.EhrRepository;
-import com.arcticsurge.cosmolab.domain.observation.VitalSigns;
-import com.arcticsurge.cosmolab.domain.observation.VitalSignsRepository;
-import com.arcticsurge.cosmolab.domain.patient.Patient;
-import com.arcticsurge.cosmolab.domain.patient.PatientRepository;
 import com.arcticsurge.cosmolab.domain.patient.PatientStatus;
+import com.arcticsurge.cosmolab.infrastructure.persistence.JpaWardOverviewRepository;
+import com.arcticsurge.cosmolab.infrastructure.persistence.WardOverviewRecord;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,36 +19,38 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class WardOverviewService {
 
-    private final PatientRepository patientRepository;
-    private final EhrRepository ehrRepository;
-    private final VitalSignsRepository vitalSignsRepository;
-    private final ProblemListRepository problemListRepository;
+    private final JpaWardOverviewRepository wardOverviewRepository;
 
     public List<WardPatientSummary> getOverview(String wardId) {
-        return patientRepository
-                .findByWardAndStatus(wardId, PatientStatus.ACTIVE, PageRequest.of(0, 100))
-                .getContent()
+        return wardOverviewRepository
+                .findByWardAndPatientStatus(wardId, PatientStatus.ACTIVE)
                 .stream()
-                .flatMap(patient -> ehrRepository.findBySubjectId(patient.getId())
-                        .map(ehr -> buildSummary(patient, ehr))
-                        .stream())
+                .map(this::toSummary)
                 .toList();
     }
 
-    private WardPatientSummary buildSummary(Patient patient, EhrRecord ehr) {
-        UUID ehrId = ehr.getEhrId();
-        Optional<VitalSigns> vitals = vitalSignsRepository.findLatestByEhrId(ehrId);
-        long activeProblemCount = problemListRepository.countByEhrIdAndStatus(ehrId, ProblemStatus.ACTIVE);
+    private WardPatientSummary toSummary(WardOverviewRecord r) {
+        WardPatientSummary.VitalsSnapshot vitals = r.getVitalsRecordedAt() == null ? null
+                : new WardPatientSummary.VitalsSnapshot(
+                        r.getVitalsRecordedAt(),
+                        r.getSystolicBp(),
+                        r.getDiastolicBp(),
+                        r.getHeartRate(),
+                        r.getTemperature(),
+                        r.getOxygenSaturation());
+
         return new WardPatientSummary(
-                patient,
-                ehr,
-                vitals.orElse(null),
-                activeProblemCount,
-                vitals.map(this::deriveFlags).orElseGet(List::of)
-        );
+                r.getPatientId(),
+                r.getEhrId(),
+                r.getFirstName(),
+                r.getLastName(),
+                r.getPatientStatus(),
+                vitals,
+                r.getActiveProblemCount(),
+                deriveFlags(r));
     }
 
-    private List<String> deriveFlags(VitalSigns v) {
+    private List<String> deriveFlags(WardOverviewRecord v) {
         var flags = new ArrayList<String>();
         Optional.ofNullable(v.getSystolicBp()).filter(bp -> bp > 140).ifPresent(bp -> flags.add("systolicBP:HIGH"));
         Optional.ofNullable(v.getSystolicBp()).filter(bp -> bp < 90).ifPresent(bp -> flags.add("systolicBP:LOW"));
@@ -70,10 +66,21 @@ public class WardOverviewService {
     }
 
     public record WardPatientSummary(
-            Patient patient,
-            EhrRecord ehr,
-            VitalSigns latestVitals,
+            UUID patientId,
+            UUID ehrId,
+            String firstName,
+            String lastName,
+            PatientStatus patientStatus,
+            VitalsSnapshot vitals,
             long activeProblemCount,
-            List<String> flags
-    ) {}
+            List<String> flags) {
+
+        public record VitalsSnapshot(
+                Instant recordedAt,
+                Integer systolicBp,
+                Integer diastolicBp,
+                Integer heartRate,
+                BigDecimal temperature,
+                BigDecimal oxygenSaturation) {}
+    }
 }

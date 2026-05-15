@@ -1,24 +1,24 @@
 package com.arcticsurge.cosmolab.domain.patient;
 
+import com.arcticsurge.cosmolab.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "patients")
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @NoArgsConstructor
-public class Patient {
-
-    @Id
-    @Column(columnDefinition = "UNIQUEIDENTIFIER")
-    private UUID id;
+public class Patient extends BaseEntity {
 
     @Column(name = "first_name", columnDefinition = "NVARCHAR(100)", nullable = false)
     private String firstName;
@@ -43,21 +43,11 @@ public class Patient {
     @Column(columnDefinition = "NVARCHAR(20)", nullable = false)
     private PatientStatus status;
 
+    @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
+    @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    void onCreate() {
-        if (id == null) id = UUID.randomUUID();
-        createdAt = LocalDateTime.now();
-        updatedAt = createdAt;
-    }
-
-    @PreUpdate
-    void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    private Instant updatedAt;
 }

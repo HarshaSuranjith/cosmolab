@@ -1,5 +1,6 @@
 package com.arcticsurge.cosmolab.infrastructure.persistence;
 
+import com.arcticsurge.cosmolab.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,11 +14,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class AuditEventRecord {
-
-    @Id
-    @Column(columnDefinition = "UNIQUEIDENTIFIER")
-    private UUID id;
+public class AuditEventRecord extends BaseEntity {
 
     @Column(name = "event_id", columnDefinition = "NVARCHAR(36)", nullable = false, unique = true)
     private String eventId;
@@ -39,7 +36,6 @@ public class AuditEventRecord {
 
     @PrePersist
     void onCreate() {
-        if (id == null) id = UUID.randomUUID();
         if (processedAt == null) processedAt = Instant.now();
     }
 }

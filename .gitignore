@@ -30,3 +30,7 @@ profiling/*.html
 
 # OS
 Thumbs.db
+
+# Other
+possible-dependency-updates.txt
+

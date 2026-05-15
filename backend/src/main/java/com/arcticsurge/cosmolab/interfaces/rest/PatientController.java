@@ -1,11 +1,11 @@
 package com.arcticsurge.cosmolab.interfaces.rest;
 
 import com.arcticsurge.cosmolab.application.patient.PatientService;
-import com.arcticsurge.cosmolab.domain.patient.Patient;
 import com.arcticsurge.cosmolab.domain.patient.PatientStatus;
 import com.arcticsurge.cosmolab.interfaces.rest.dto.PagedResponse;
 import com.arcticsurge.cosmolab.interfaces.rest.dto.PatientRequest;
 import com.arcticsurge.cosmolab.interfaces.rest.dto.PatientResponse;
+import com.arcticsurge.cosmolab.interfaces.rest.mapper.PatientMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -29,6 +29,7 @@ import java.util.UUID;
 public class PatientController {
 
     private final PatientService patientService;
+    private final PatientMapper patientMapper;
 
     @Operation(summary = "List / search patients",
                description = "Paginated list with optional ward, status, and name-fragment filters. Sorted by last name then first name.")
@@ -45,7 +46,7 @@ public class PatientController {
             @Parameter(description = "Page size") @RequestParam(defaultValue = "20") int size) {
         var pageable = PageRequest.of(page, size, Sort.by("lastName", "firstName"));
         return PagedResponse.of(patientService.search(ward, status, search, pageable)
-                .map(PatientResponse::from));
+                .map(patientMapper::toResponse));
     }
 
     @Operation(summary = "Get patient by ID")
@@ -54,7 +55,7 @@ public class PatientController {
                  content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     @GetMapping("/{id}")
     PatientResponse getById(@PathVariable UUID id) {
-        return PatientResponse.from(patientService.getById(id));
+        return patientMapper.toResponse(patientService.getById(id));
     }
 
     @Operation(summary = "Register a new patient",
@@ -67,7 +68,7 @@ public class PatientController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     PatientResponse create(@Valid @RequestBody PatientRequest request) {
-        return PatientResponse.from(patientService.create(toEntity(request)));
+        return patientMapper.toResponse(patientService.create(patientMapper.toEntity(request)));
     }
 
     @Operation(summary = "Update patient demographics")
@@ -78,7 +79,7 @@ public class PatientController {
                  content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     @PutMapping("/{id}")
     PatientResponse update(@PathVariable UUID id, @Valid @RequestBody PatientRequest request) {
-        return PatientResponse.from(patientService.update(id, toEntity(request)));
+        return patientMapper.toResponse(patientService.update(id, request));
     }
 
     @Operation(summary = "Discharge a patient",
@@ -90,17 +91,5 @@ public class PatientController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void discharge(@PathVariable UUID id) {
         patientService.discharge(id);
-    }
-
-    private Patient toEntity(PatientRequest r) {
-        Patient p = new Patient();
-        p.setFirstName(r.firstName());
-        p.setLastName(r.lastName());
-        p.setPersonalNumber(r.personalNumber());
-        p.setDateOfBirth(r.dateOfBirth());
-        p.setGender(r.gender());
-        p.setWard(r.ward());
-        p.setStatus(r.status());
-        return p;
     }
 }

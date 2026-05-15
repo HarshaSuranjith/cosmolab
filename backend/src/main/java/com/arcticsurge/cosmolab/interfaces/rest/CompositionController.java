@@ -1,11 +1,11 @@
 package com.arcticsurge.cosmolab.interfaces.rest;
 
 import com.arcticsurge.cosmolab.application.composition.CompositionService;
-import com.arcticsurge.cosmolab.domain.composition.Composition;
 import com.arcticsurge.cosmolab.domain.composition.CompositionType;
 import com.arcticsurge.cosmolab.interfaces.rest.dto.CompositionRequest;
 import com.arcticsurge.cosmolab.interfaces.rest.dto.CompositionResponse;
 import com.arcticsurge.cosmolab.interfaces.rest.dto.PagedResponse;
+import com.arcticsurge.cosmolab.interfaces.rest.mapper.CompositionMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -29,6 +29,7 @@ import java.util.UUID;
 public class CompositionController {
 
     private final CompositionService compositionService;
+    private final CompositionMapper compositionMapper;
 
     @Operation(summary = "Create a composition",
                description = "Creates a clinical document under the given EHR. The type determines which entry archetypes can be nested inside.")
@@ -40,13 +41,8 @@ public class CompositionController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     CompositionResponse create(@PathVariable UUID ehrId, @Valid @RequestBody CompositionRequest request) {
-        Composition c = new Composition();
-        c.setEhrId(ehrId);
-        c.setType(request.type());
-        c.setAuthorId(request.authorId());
-        c.setStartTime(request.startTime());
-        c.setFacilityName(request.facilityName());
-        return CompositionResponse.from(compositionService.create(c));
+        return compositionMapper.toResponse(
+                compositionService.create(compositionMapper.toEntity(request, ehrId)));
     }
 
     @Operation(summary = "List compositions for an EHR",
@@ -62,7 +58,7 @@ public class CompositionController {
             @RequestParam(defaultValue = "20") int size) {
         var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "commitTime"));
         return PagedResponse.of(compositionService.listByEhr(ehrId, type, pageable)
-                .map(CompositionResponse::from));
+                .map(compositionMapper::toResponse));
     }
 
     @Operation(summary = "Get a composition by ID")
@@ -71,7 +67,7 @@ public class CompositionController {
                  content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     @GetMapping("/{id}")
     CompositionResponse getById(@PathVariable UUID ehrId, @PathVariable UUID id) {
-        return CompositionResponse.from(compositionService.getById(id, ehrId));
+        return compositionMapper.toResponse(compositionService.getById(id, ehrId));
     }
 
     @Operation(summary = "Update a composition")
@@ -83,10 +79,6 @@ public class CompositionController {
     @PutMapping("/{id}")
     CompositionResponse update(@PathVariable UUID ehrId, @PathVariable UUID id,
                                @Valid @RequestBody CompositionRequest request) {
-        Composition updated = new Composition();
-        updated.setType(request.type());
-        updated.setStartTime(request.startTime());
-        updated.setFacilityName(request.facilityName());
-        return CompositionResponse.from(compositionService.update(id, ehrId, updated));
+        return compositionMapper.toResponse(compositionService.update(id, ehrId, request));
     }
 }

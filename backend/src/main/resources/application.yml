@@ -47,6 +47,13 @@ management:
     tracing:
       endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://tempo:4317}
 
+cosmolab:
+  cors:
+    allowed-origins:
+      - "http://localhost"
+      - "http://localhost:80"
+      - "http://localhost:4200"
+
 logging:
   level:
     com.arcticsurge.cosmolab: INFO

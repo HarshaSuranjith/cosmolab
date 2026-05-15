@@ -1,5 +1,6 @@
 package com.arcticsurge.cosmolab.domain.observation;
 
+import com.arcticsurge.cosmolab.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,11 +15,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class VitalSigns {
-
-    @Id
-    @Column(columnDefinition = "UNIQUEIDENTIFIER")
-    private UUID id;
+public class VitalSigns extends BaseEntity {
 
     @Column(name = "composition_id", columnDefinition = "UNIQUEIDENTIFIER", nullable = false)
     private UUID compositionId;
@@ -52,7 +49,6 @@ public class VitalSigns {
 
     @PrePersist
     void onCreate() {
-        if (id == null) id = UUID.randomUUID();
         if (recordedAt == null) recordedAt = Instant.now();
     }
 }

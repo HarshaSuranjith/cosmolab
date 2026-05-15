@@ -1,6 +1,5 @@
 package com.arcticsurge.cosmolab.interfaces.rest.dto;
 
-import com.arcticsurge.cosmolab.domain.observation.VitalSigns;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
@@ -20,10 +19,4 @@ public record VitalSignsResponse(
         @Schema(description = "Body temperature in °C") BigDecimal temperature,
         @Schema(description = "Peripheral oxygen saturation (SpO₂) in %") BigDecimal oxygenSaturation,
         @Schema(description = "Body weight in kg") BigDecimal weight
-) {
-    public static VitalSignsResponse from(VitalSigns v) {
-        return new VitalSignsResponse(v.getId(), v.getCompositionId(), v.getRecordedAt(),
-                v.getRecordedBy(), v.getSystolicBp(), v.getDiastolicBp(), v.getHeartRate(),
-                v.getRespiratoryRate(), v.getTemperature(), v.getOxygenSaturation(), v.getWeight());
-    }
-}
+) {}

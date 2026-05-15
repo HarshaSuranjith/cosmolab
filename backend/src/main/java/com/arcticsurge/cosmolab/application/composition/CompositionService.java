@@ -4,6 +4,8 @@ import com.arcticsurge.cosmolab.domain.composition.Composition;
 import com.arcticsurge.cosmolab.domain.composition.CompositionRepository;
 import com.arcticsurge.cosmolab.domain.composition.CompositionType;
 import com.arcticsurge.cosmolab.infrastructure.messaging.ClinicalEventPublisher;
+import com.arcticsurge.cosmolab.interfaces.rest.dto.CompositionRequest;
+import com.arcticsurge.cosmolab.interfaces.rest.mapper.CompositionMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +21,7 @@ public class CompositionService {
 
     private final CompositionRepository compositionRepository;
     private final ClinicalEventPublisher eventPublisher;
+    private final CompositionMapper compositionMapper;
 
     public Composition getById(UUID id, UUID ehrId) {
         return compositionRepository.findById(id)
@@ -41,14 +44,10 @@ public class CompositionService {
     }
 
     @Transactional
-    public Composition update(UUID id, UUID ehrId, Composition updated) {
+    public Composition update(UUID id, UUID ehrId, CompositionRequest request) {
         Composition existing = getById(id, ehrId);
-        existing.setType(updated.getType());
-        existing.setStartTime(updated.getStartTime());
-        existing.setFacilityName(updated.getFacilityName());
-        existing.setStatus(updated.getStatus());
-        Composition saved = compositionRepository.save(existing);
-        eventPublisher.publishClinicalEvent("note.updated", saved.getId(), saved.getType().name());
-        return saved;
+        compositionMapper.merge(request, existing);
+        eventPublisher.publishClinicalEvent("note.updated", existing.getId(), existing.getType().name());
+        return existing;
     }
 }

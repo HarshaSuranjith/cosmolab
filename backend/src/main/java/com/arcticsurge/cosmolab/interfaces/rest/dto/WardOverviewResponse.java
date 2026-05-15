@@ -1,6 +1,7 @@
 package com.arcticsurge.cosmolab.interfaces.rest.dto;
 
 import com.arcticsurge.cosmolab.application.ward.WardOverviewService.WardPatientSummary;
+import com.arcticsurge.cosmolab.application.ward.WardOverviewService.WardPatientSummary.VitalsSnapshot;
 import com.arcticsurge.cosmolab.domain.patient.PatientStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -38,23 +39,24 @@ public record WardOverviewResponse(
     ) {}
 
     public static WardOverviewResponse from(String wardId, List<WardPatientSummary> summaries) {
-        List<PatientSummary> patients = summaries.stream().map(s -> new PatientSummary(
-                s.patient().getId(),
-                s.ehr().getEhrId(),
-                s.patient().getFirstName(),
-                s.patient().getLastName(),
-                s.patient().getStatus(),
-                s.latestVitals() == null ? null : new LatestVitals(
-                        s.latestVitals().getRecordedAt(),
-                        s.latestVitals().getSystolicBp(),
-                        s.latestVitals().getDiastolicBp(),
-                        s.latestVitals().getHeartRate(),
-                        s.latestVitals().getTemperature(),
-                        s.latestVitals().getOxygenSaturation()
-                ),
-                s.activeProblemCount(),
-                s.flags()
-        )).toList();
+        List<PatientSummary> patients = summaries.stream().map(s -> {
+            VitalsSnapshot vs = s.vitals();
+            return new PatientSummary(
+                    s.patientId(),
+                    s.ehrId(),
+                    s.firstName(),
+                    s.lastName(),
+                    s.patientStatus(),
+                    vs == null ? null : new LatestVitals(
+                            vs.recordedAt(),
+                            vs.systolicBp(),
+                            vs.diastolicBp(),
+                            vs.heartRate(),
+                            vs.temperature(),
+                            vs.oxygenSaturation()),
+                    s.activeProblemCount(),
+                    s.flags());
+        }).toList();
         return new WardOverviewResponse(wardId, patients.size(), patients);
     }
 }
