@@ -7,15 +7,15 @@ alwaysApply: false
 
 ## Sprint Overview
 
-| Sprint | Focus | Exit criterion |
-|---|---|---|
-| 1 | Infrastructure + domain model | docker-compose up healthy; Flyway V1-V6 applied; /actuator/health UP |
-| 2 | Backend API + RabbitMQ + unit tests | All endpoints correct; events in RabbitMQ UI; MockMvc pass |
-| 3 | Angular frontend | All pages navigable; live data; no console errors |
-| 4 | Containerisation + Playwright E2E | Full stack in containers; Playwright green |
-| 5 | Jenkins pipeline | All 7 stages green; Playwright report published |
-| 6 | Observability + JMeter baseline | Grafana live under load; JMeter HTML report with p95 |
-| 7 | Gatling + k6 + optimisation | Before/after benchmark with profiling evidence |
+| Sprint | Focus | Status | Exit criterion |
+|---|---|---|---|
+| 1 | Infrastructure + domain model | **DONE** | docker-compose up healthy; Flyway V1-V6 applied; /actuator/health UP |
+| 2 | Backend API + RabbitMQ + unit tests | In progress | All endpoints correct; events in RabbitMQ UI; MockMvc pass |
+| 3 | Angular frontend | Pending | All pages navigable; live data; no console errors |
+| 4 | Containerisation + Playwright E2E | Pending | Full stack in containers; Playwright green |
+| 5 | Jenkins pipeline | Pending | All 7 stages green; Playwright report published |
+| 6 | Observability + JMeter baseline | Pending | Grafana live under load; JMeter HTML report with p95 |
+| 7 | Gatling + k6 + optimisation | Pending | Before/after benchmark with profiling evidence |
 
 ---
 
@@ -39,6 +39,18 @@ alwaysApply: false
 
 **Exit**: `mvn clean install` succeeds. All containers healthy. Flyway V1-V6 applied. `/actuator/health` UP.
 
+**Status: DONE** — `mvn test` green. All containers defined. Seed data applied.
+
+**Additional work completed beyond original Sprint 1 scope:**
+- OpenAPI/Swagger documentation (`springdoc-openapi-starter-webmvc-ui:2.5.0`) — all 6 controllers
+  annotated with `@Tag`/`@Operation`/`@ApiResponse`; all 10 DTOs with `@Schema`; Swagger UI at
+  `/swagger-ui.html`
+- Testcontainers integration — H2 replaced with real SQL Server 2022 + RabbitMQ 3.12 containers;
+  `AbstractIntegrationTest` base class with `@DynamicPropertySource`
+- Modern Java patterns — `Optional.orElseGet`, stream `flatMap`, typed exceptions,
+  `List.copyOf`, ternary service dispatchers throughout application layer
+- Flyway V2/V3/V4 corrected: `DATETIMEOFFSET(6)` for all `Instant` columns (Hibernate 6 requirement)
+
 ---
 
 ## Sprint 2 — Backend API + RabbitMQ Events
@@ -51,6 +63,10 @@ alwaysApply: false
 - DTOs: request/response per resource + `PagedResponse<T>` + `WardOverviewResponse`
 - Tests: `EhrControllerTest`, `VitalSignsControllerTest`, `ProblemListControllerTest`,
   `WardOverviewControllerTest`, `CompositionControllerTest`
+
+**Already completed** (moved forward from Sprint 1 extras): all services, controllers, DTOs,
+RabbitMQ config, OpenAPI annotations. Remaining Sprint 2 work: MockMvc controller tests +
+verify RabbitMQ event flow end-to-end.
 
 **Exit**: All MockMvc tests pass. RabbitMQ UI (`:15672`) shows messages on `clinical.events` after any write. WardOverview returns populated ICU response.
 

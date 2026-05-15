@@ -28,32 +28,34 @@ Playwright      → http://localhost:80
 ## Backend Package Structure (DDD-lite)
 
 ```
-com.cosmolab
+com.arcticsurge.cosmolab
 ├── config/
 │   ├── WebConfig.java              # CORS, MVC
 │   ├── RabbitMQConfig.java         # exchanges, queues, bindings
 │   ├── ObservabilityConfig.java    # Micrometer tracing + OTLP
-│   └── SecurityConfig.java         # disabled; permitAll() scaffolded
+│   ├── SecurityConfig.java         # disabled; permitAll() scaffolded
+│   └── OpenApiConfig.java          # springdoc global metadata, bearerAuth scheme
 ├── domain/                         # zero framework dependencies
 │   ├── ehr/         EhrRecord, EhrRepository (port)
 │   ├── composition/ Composition, CompositionType, CompositionStatus, repository
 │   ├── observation/ VitalSigns, repository
 │   ├── evaluation/  ProblemListEntry, ProblemStatus, Severity, repository
 │   └── patient/     Patient, PatientStatus, Gender, repository
-├── application/                    # use-case orchestration
-│   ├── ehr/         EhrService
-│   ├── composition/ CompositionService
+├── application/                    # use-case orchestration; @Service, @Transactional
+│   ├── ehr/         EhrService, EhrNotFoundException
+│   ├── composition/ CompositionService, CompositionNotFoundException
 │   ├── observation/ VitalSignsService
-│   ├── evaluation/  ProblemListService
-│   └── ward/        WardOverviewService (aggregation — no new entity)
+│   ├── evaluation/  ProblemListService, ProblemListEntryNotFoundException
+│   ├── patient/     PatientService, PatientNotFoundException
+│   └── ward/        WardOverviewService (aggregation query — no new entity)
 ├── infrastructure/
-│   ├── persistence/ JPA implementations of domain repository ports
+│   ├── persistence/ JPA implementations of all domain repository ports
 │   └── messaging/   ClinicalEvent record, ClinicalEventPublisher, AuditEventConsumer
 └── interfaces/rest/
     ├── EhrController, CompositionController, VitalSignsController
-    ├── ProblemListController, WardOverviewController
-    ├── GlobalExceptionHandler   # RFC 7807 ProblemDetail for all errors
-    └── dto/                     # Request/Response DTOs + PagedResponse<T>
+    ├── ProblemListController, WardOverviewController, PatientController
+    ├── GlobalExceptionHandler   # RFC 7807 ProblemDetail; all *NotFoundException → 404
+    └── dto/                     # Request/Response records + PagedResponse<T> + WardOverviewResponse
 ```
 
 ## Domain Schema (MS SQL Server)
@@ -82,6 +84,9 @@ problem_list_entries (id UUID PK, composition_id FK→compositions,
 ```
 
 All text columns use `NVARCHAR` — SQL Server VARCHAR corrupts Swedish characters (å, ä, ö).
+`Instant` columns use `DATETIMEOFFSET(6)` — Hibernate 6 maps `java.time.Instant` to `TIMESTAMP_UTC`
+(datetimeoffset), not `datetime2` as Hibernate 5 did. Using `DATETIME2` for Instant fields causes
+`SchemaManagementException` at startup.
 
 ## REST API Surface
 
@@ -103,7 +108,7 @@ GET|PUT           /api/v1/ehr/{ehrId}/compositions/{id}
 # Vital Signs
 POST              /api/v1/ehr/{ehrId}/compositions/{cid}/vitals
 GET               /api/v1/ehr/{ehrId}/vitals            ?from=&to=
-GET               /api/v1/ehr/{ehrId}/vitals/latest
+GET               /api/v1/ehr/{ehrId}/vitals/latest     → 200 with body | 204 No Content
 
 # Problem List
 POST              /api/v1/ehr/{ehrId}/problems
@@ -112,6 +117,10 @@ GET|PUT           /api/v1/ehr/{ehrId}/problems/{id}
 
 # Ward Overview (aggregation — primary load test target)
 GET               /api/v1/ward/{wardId}/overview
+
+# OpenAPI
+GET               /swagger-ui.html                      → Swagger UI
+GET               /v3/api-docs                          → OpenAPI 3 spec (JSON)
 
 # Actuator
 GET               /actuator/health
