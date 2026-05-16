@@ -1,0 +1,99 @@
+<app-page-header icon="settings" title="System Administration" />
+
+<div class="admin-content">
+
+  <!-- ─── System Health ───────────────────────────────────────────────────── -->
+  <mat-card class="health-card" appearance="outlined">
+    <mat-card-content class="health-body">
+      <div class="health-header">
+        <span class="material-symbols-outlined health-icon">favorite</span>
+        <div>
+          <p class="card-title">System Health</p>
+          <p class="card-subtitle">Live status from /actuator/health</p>
+        </div>
+      </div>
+
+      <div class="health-indicators" data-testid="health-status">
+        @if (healthLoading()) {
+          <span class="health-indicator">
+            <span class="status-dot loading"></span>
+            Checking…
+          </span>
+        } @else if (health()) {
+          @let h = health()!;
+          <span class="health-indicator">
+            <span class="status-dot" [style.background]="statusColor(h.status)"></span>
+            Application <strong>{{ h.status }}</strong>
+          </span>
+          @if (h.components?.['db']) {
+            <span class="health-indicator">
+              <span class="status-dot" [style.background]="statusColor(h.components!['db'].status)"></span>
+              Database <strong>{{ h.components!['db'].status }}</strong>
+            </span>
+          }
+          @if (h.components?.['rabbit']) {
+            <span class="health-indicator">
+              <span class="status-dot" [style.background]="statusColor(h.components!['rabbit'].status)"></span>
+              Broker <strong>{{ h.components!['rabbit'].status }}</strong>
+            </span>
+          }
+        } @else {
+          <span class="health-indicator">
+            <span class="status-dot" [style.background]="statusColor('UNKNOWN')"></span>
+            Health check unavailable
+          </span>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- ─── Service links ──────────────────────────────────────────────────── -->
+  <div class="link-grid">
+
+    <a class="link-card" href="http://localhost:3000"
+       target="_blank" rel="noopener"
+       data-testid="admin-grafana-link">
+      <span class="material-symbols-outlined link-icon">monitoring</span>
+      <div class="link-text">
+        <span class="link-title">Grafana</span>
+        <span class="link-subtitle">Monitoring &amp; Dashboards</span>
+      </div>
+      <span class="material-symbols-outlined link-arrow">open_in_new</span>
+    </a>
+
+    <a class="link-card" href="http://localhost:15672"
+       target="_blank" rel="noopener"
+       data-testid="admin-rabbitmq-link">
+      <span class="material-symbols-outlined link-icon">swap_horiz</span>
+      <div class="link-text">
+        <span class="link-title">RabbitMQ</span>
+        <span class="link-subtitle">Message Broker UI</span>
+      </div>
+      <span class="material-symbols-outlined link-arrow">open_in_new</span>
+    </a>
+
+    <a class="link-card" href="http://localhost:8080/actuator"
+       target="_blank" rel="noopener"
+       data-testid="admin-actuator-link">
+      <span class="material-symbols-outlined link-icon">health_and_safety</span>
+      <div class="link-text">
+        <span class="link-title">Actuator</span>
+        <span class="link-subtitle">Health &amp; Metrics</span>
+      </div>
+      <span class="material-symbols-outlined link-arrow">open_in_new</span>
+    </a>
+
+    <a class="link-card" href="http://localhost:8080/swagger-ui.html"
+       target="_blank" rel="noopener"
+       data-testid="admin-swagger-link">
+      <span class="material-symbols-outlined link-icon">api</span>
+      <div class="link-text">
+        <span class="link-title">Swagger UI</span>
+        <span class="link-subtitle">OpenAPI 3 Documentation</span>
+      </div>
+      <span class="material-symbols-outlined link-arrow">open_in_new</span>
+    </a>
+
+  </div>
+
+</div>

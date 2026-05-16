@@ -1,0 +1,88 @@
+:host { display: block; }
+
+.list-content {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 1280px;
+}
+
+// ─── Filter bar ───────────────────────────────────────────────────────────────
+.filter-bar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.search-field {
+  flex: 1;
+  min-width: 240px;
+}
+
+.filter-field {
+  width: 160px;
+}
+
+.prefix-icon {
+  font-size: 18px;
+  line-height: 1;
+  color: var(--nc-secondary);
+  margin-right: 6px;
+  padding: 0 0 0 8px;
+  vertical-align: middle;
+}
+
+// ─── Table ────────────────────────────────────────────────────────────────────
+.table-card {
+  background: var(--nc-surface-lowest);
+  border: 1px solid var(--nc-outline-variant);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.patients-table { width: 100%; }
+
+.header-row { background: var(--nc-surface-container); }
+
+.data-row.clickable {
+  cursor: pointer;
+  &:hover { background: var(--nc-surface-low) !important; }
+}
+
+.patient-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.patient-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  background: var(--nc-secondary-container);
+  color: var(--nc-on-secondary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.mono { font-variant-numeric: tabular-nums; font-size: 13px; }
+
+// ─── States ───────────────────────────────────────────────────────────────────
+.state-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64px 24px;
+  gap: 8px;
+  color: var(--nc-outline);
+  text-align: center;
+
+  .state-icon { font-size: 48px; }
+  p { margin: 0; font-size: 14px; }
+}

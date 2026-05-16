@@ -1,0 +1,128 @@
+.app-sidenav-container {
+  position: fixed;
+  inset: 0;
+}
+
+// ─── Sidenav panel ────────────────────────────────────────────────────────────
+.record-sidenav {
+  width: 240px;
+  background: var(--nc-primary);
+  border-right: none;
+}
+
+.sidenav-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.sidenav-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 56px;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+
+  .logo-icon {
+    color: var(--nc-inverse-primary);
+    font-size: 24px;
+  }
+
+  .logo-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--nc-on-primary);
+    letter-spacing: -0.01em;
+  }
+}
+
+// ─── Nav links ────────────────────────────────────────────────────────────────
+.sidenav-nav {
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  text-decoration: none;
+  color: var(--nc-on-primary-container);
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 0;
+  transition: background-color 0.15s;
+
+  .material-symbols-outlined {
+    font-size: 22px;
+    color: var(--nc-on-primary-container);
+  }
+
+  &:hover {
+    background: var(--nc-primary-container);
+  }
+
+  &.nav-link--active {
+    background: var(--nc-primary-container);
+    color: var(--nc-inverse-primary);
+    font-weight: 600;
+
+    .material-symbols-outlined {
+      color: var(--nc-inverse-primary);
+    }
+  }
+}
+
+// ─── User info ────────────────────────────────────────────────────────────────
+.sidenav-user {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  background: var(--nc-primary-container);
+  color: var(--nc-inverse-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  .user-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--nc-on-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .user-role {
+    font-size: 11px;
+    color: var(--nc-on-primary-container);
+    white-space: nowrap;
+  }
+}
+
+// ─── Content area ─────────────────────────────────────────────────────────────
+.record-content {
+  background: var(--nc-background);
+  overflow-y: auto;
+}

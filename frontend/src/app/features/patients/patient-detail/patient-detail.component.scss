@@ -1,0 +1,197 @@
+:host { display: block; }
+
+// ─── Header ───────────────────────────────────────────────────────────────────
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  background: var(--nc-surface-lowest);
+  border-bottom: 1px solid var(--nc-outline-variant);
+  flex-wrap: wrap;
+}
+
+.back-btn { color: var(--nc-secondary); }
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+}
+
+.patient-avatar-lg {
+  width: 48px;
+  height: 48px;
+  border-radius: 9999px;
+  background: var(--nc-secondary-container);
+  color: var(--nc-on-secondary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.header-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.patient-fullname {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--nc-on-surface);
+  letter-spacing: -0.01em;
+}
+
+.patient-sub {
+  margin: 0;
+  font-size: 13px;
+  color: var(--nc-on-surface-variant);
+}
+
+.header-chips {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.gender-chip {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 2px;
+  background: var(--nc-secondary-container);
+  color: var(--nc-on-secondary-container);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+// ─── Tab group ────────────────────────────────────────────────────────────────
+.detail-tabs {
+  height: calc(100vh - 160px);
+}
+
+// ─── Tab content ──────────────────────────────────────────────────────────────
+.tab-content {
+  padding: 24px;
+  max-width: 1280px;
+}
+
+.two-col-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tab-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.tab-filter {
+  width: 160px;
+}
+
+// ─── Detail cards ─────────────────────────────────────────────────────────────
+.detail-card { height: fit-content; }
+
+.detail-list { margin: 0; padding: 0; }
+
+.dl-row {
+  display: flex;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--nc-outline-variant);
+  font-size: 13px;
+
+  &:last-child { border-bottom: none; }
+
+  dt {
+    width: 140px;
+    flex-shrink: 0;
+    color: var(--nc-on-surface-variant);
+    font-weight: 500;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--nc-on-surface);
+    flex: 1;
+  }
+}
+
+// ─── Vitals snapshot grid ─────────────────────────────────────────────────────
+.vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.vitals-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px;
+  background: var(--nc-surface-low);
+  border-radius: 4px;
+
+  .vc-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--nc-on-surface-variant);
+  }
+
+  .vc-val {
+    font-size: 15px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--nc-on-surface);
+  }
+}
+
+.vitals-ts {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: var(--nc-outline);
+}
+
+// ─── Tables ───────────────────────────────────────────────────────────────────
+.table-card {
+  background: var(--nc-surface-lowest);
+  border: 1px solid var(--nc-outline-variant);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.detail-table { width: 100%; }
+
+.header-row { background: var(--nc-surface-container); }
+
+.resolved-row { opacity: 0.6; }
+
+// ─── States ───────────────────────────────────────────────────────────────────
+.state-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64px 24px;
+  gap: 8px;
+  color: var(--nc-outline);
+  text-align: center;
+
+  .state-icon { font-size: 48px; }
+  p { margin: 0; font-size: 14px; }
+}
+
+.mono { font-variant-numeric: tabular-nums; font-size: 13px; }
+.no-data { color: var(--nc-outline); font-size: 13px; margin: 16px 0 0; }

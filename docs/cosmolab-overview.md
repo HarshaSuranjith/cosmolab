@@ -18,7 +18,7 @@ Built for: (1) Cambio Platform Performance Engineer interview preparation, (2) p
 
 | Layer | Technology | Version |
 |---|---|---|
-| Frontend | Angular (NgModules) | 17 |
+| Frontend | Angular (standalone) | 19 |
 | Backend | Spring Boot WAR | 3.2 / JDK 17 |
 | App server | WildFly | 30 |
 | Database | MS SQL Server | 2022 |

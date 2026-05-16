@@ -1,0 +1,124 @@
+:host {
+  display: block;
+}
+
+// ─── Compact mode ─────────────────────────────────────────────────────────────
+.compact-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.vital-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--nc-on-surface);
+  white-space: nowrap;
+}
+
+.flag-icon {
+  font-size: 14px;
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+}
+
+// ─── Full mode ────────────────────────────────────────────────────────────────
+.chart-container {
+  padding: 16px 0;
+}
+
+.sparkline-svg {
+  width: 100%;
+  height: 240px;
+  display: block;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 8px 0;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--nc-on-surface-variant);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+// ─── Dense readings table ──────────────────────────────────────────────────────
+.readings-table-wrap {
+  overflow-x: auto;
+  margin-top: 16px;
+}
+
+.readings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  th {
+    background: var(--nc-surface-container);
+    padding: 6px 12px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--nc-on-surface-variant);
+    border-bottom: 1px solid var(--nc-outline-variant);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--nc-outline-variant);
+    color: var(--nc-on-surface);
+    white-space: nowrap;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+.mono {
+  font-variant-numeric: tabular-nums;
+}
+
+// ─── Empty state ───────────────────────────────────────────────────────────────
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 24px;
+  color: var(--nc-outline);
+  text-align: center;
+
+  p {
+    margin: 4px 0;
+    font-size: 14px;
+  }
+
+  .empty-hint {
+    font-size: 12px;
+  }
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  color: var(--nc-surface-highest);
+}

@@ -1,0 +1,59 @@
+@if (isDashboardRoute()) {
+  <!-- Dashboard layout: ward overview manages its own full-page header -->
+  <router-outlet />
+} @else {
+  <!-- Record layout: fixed 240px sidenav + scrollable content area -->
+  <mat-sidenav-container class="app-sidenav-container">
+
+    <mat-sidenav class="record-sidenav"
+                 [mode]="isMobile() ? 'over' : 'side'"
+                 [opened]="!isMobile()">
+      <div class="sidenav-inner">
+        <!-- Logo row -->
+        <div class="sidenav-logo">
+          <span class="material-symbols-outlined logo-icon">clinical_notes</span>
+          <span class="logo-text">CosmoLab</span>
+        </div>
+
+        <!-- Nav links -->
+        <nav class="sidenav-nav">
+          <a class="nav-link"
+             routerLink="/ward/ICU"
+             routerLinkActive="nav-link--active"
+             data-testid="nav-ward">
+            <span class="material-symbols-outlined">grid_view</span>
+            <span>Ward</span>
+          </a>
+          <a class="nav-link"
+             routerLink="/patients"
+             routerLinkActive="nav-link--active"
+             data-testid="nav-patients">
+            <span class="material-symbols-outlined">group</span>
+            <span>Patients</span>
+          </a>
+          <a class="nav-link"
+             routerLink="/admin"
+             routerLinkActive="nav-link--active"
+             data-testid="nav-admin">
+            <span class="material-symbols-outlined">settings</span>
+            <span>Admin</span>
+          </a>
+        </nav>
+
+        <!-- User info -->
+        <div class="sidenav-user">
+          <div class="user-avatar">DA</div>
+          <div class="user-info">
+            <span class="user-name">Dr. Andersson</span>
+            <span class="user-role">Chief Resident</span>
+          </div>
+        </div>
+      </div>
+    </mat-sidenav>
+
+    <mat-sidenav-content class="record-content">
+      <router-outlet />
+    </mat-sidenav-content>
+
+  </mat-sidenav-container>
+}

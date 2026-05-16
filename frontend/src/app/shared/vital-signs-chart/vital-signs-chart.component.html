@@ -1,0 +1,118 @@
+@if (compact()) {
+  <!-- ─── Compact mode: single-row values with flag icons ─────────────── -->
+  @let v = latest();
+  <div class="compact-row">
+    <span class="vital-cell" data-testid="vitals-cell-bp"
+          [style.color]="colorFor(bpFlag())">
+      @if (v && v.systolicBp !== null) {
+        {{ v.systolicBp }}/{{ v.diastolicBp ?? '?' }}
+        @if (bpFlag() !== 'normal') {
+          <span class="material-symbols-outlined flag-icon"
+                data-testid="vital-flag-badge">{{ flagIcon(bpFlag()) }}</span>
+        }
+      } @else { — }
+    </span>
+
+    <span class="vital-cell" data-testid="vitals-cell-heartRate"
+          [style.color]="colorFor(hrFlag())">
+      @if (v && v.heartRate !== null) {
+        {{ v.heartRate }}
+        @if (hrFlag() !== 'normal') {
+          <span class="material-symbols-outlined flag-icon"
+                data-testid="vital-flag-badge">{{ flagIcon(hrFlag()) }}</span>
+        }
+      } @else { — }
+    </span>
+
+    <span class="vital-cell" data-testid="vitals-cell-resp">
+      @if (v && v.respiratoryRate !== null) { {{ v.respiratoryRate }} } @else { — }
+    </span>
+
+    <span class="vital-cell" data-testid="vitals-cell-temperature"
+          [style.color]="colorFor(tempFlag())">
+      @if (v && v.temperature !== null) {
+        {{ v.temperature | number:'1.1-1' }}
+        @if (tempFlag() !== 'normal') {
+          <span class="material-symbols-outlined flag-icon"
+                data-testid="vital-flag-badge">{{ flagIcon(tempFlag()) }}</span>
+        }
+      } @else { — }
+    </span>
+
+    <span class="vital-cell" data-testid="vitals-cell-spo2"
+          [style.color]="colorFor(spFlag())">
+      @if (v && v.oxygenSaturation !== null) {
+        {{ v.oxygenSaturation | number:'1.0-0' }}%
+        @if (spFlag() !== 'normal') {
+          <span class="material-symbols-outlined flag-icon"
+                data-testid="vital-flag-badge">{{ flagIcon(spFlag()) }}</span>
+        }
+      } @else { — }
+    </span>
+  </div>
+
+} @else {
+  <!-- ─── Full mode: SVG sparkline + dense table ───────────────────────── -->
+  @if (readings().length === 0) {
+    <div class="empty-state" data-testid="empty-state">
+      <span class="material-symbols-outlined empty-icon">monitor_heart</span>
+      <p>No vital signs recorded yet.</p>
+      <p class="empty-hint">Use the button above to add a reading.</p>
+    </div>
+  } @else {
+    <div class="chart-container">
+      <svg class="sparkline-svg" viewBox="0 0 480 220" preserveAspectRatio="none">
+        @for (series of chartData(); track series.label) {
+          <polyline
+            [attr.points]="pointsStr(series.points)"
+            [attr.stroke]="series.color"
+            fill="none"
+            stroke-width="2"
+            stroke-linejoin="round"
+            stroke-linecap="round"
+          />
+        }
+      </svg>
+      <div class="chart-legend">
+        @for (series of chartData(); track series.label) {
+          <span class="legend-item">
+            <span class="legend-dot" [style.background]="series.color"></span>
+            {{ series.label }}
+          </span>
+        }
+      </div>
+    </div>
+
+    <!-- Dense readings table -->
+    <div class="readings-table-wrap">
+      <table class="readings-table">
+        <thead>
+          <tr>
+            <th>Recorded</th><th>BP</th><th>HR</th><th>RR</th><th>Temp</th><th>SpO₂</th><th>Weight</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of tableReadings(); track r.id) {
+            <tr>
+              <td class="mono">{{ r.recordedAt | date:'yyyy-MM-dd HH:mm' }}</td>
+              <td class="mono" [style.color]="colorFor(getBpFlag(r.systolicBp))">
+                {{ r.systolicBp ?? '—' }}/{{ r.diastolicBp ?? '—' }}
+              </td>
+              <td class="mono" [style.color]="colorFor(getHrFlag(r.heartRate))">
+                {{ r.heartRate ?? '—' }}
+              </td>
+              <td class="mono">{{ r.respiratoryRate ?? '—' }}</td>
+              <td class="mono" [style.color]="colorFor(getTempFlag(r.temperature))">
+                {{ r.temperature !== null ? (r.temperature | number:'1.1-1') + '°C' : '—' }}
+              </td>
+              <td class="mono" [style.color]="colorFor(getSpFlag(r.oxygenSaturation))">
+                {{ r.oxygenSaturation !== null ? (r.oxygenSaturation | number:'1.0-0') + '%' : '—' }}
+              </td>
+              <td class="mono">{{ r.weight !== null ? (r.weight | number:'1.1-1') + ' kg' : '—' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+}

@@ -1,0 +1,154 @@
+<!-- ─── Fixed top header (dashboard layout) ──────────────────────────────── -->
+<header class="ward-header">
+  <a class="brand" routerLink="/ward/ICU" data-testid="nav-logo">
+    <span class="material-symbols-outlined brand-icon">clinical_notes</span>
+    <span class="brand-text">CosmoLab</span>
+  </a>
+
+  <div class="header-actions">
+    <button mat-icon-button color="primary" (click)="refresh()" data-testid="refresh-btn" aria-label="Refresh">
+      <span class="material-symbols-outlined">refresh</span>
+    </button>
+    <button mat-icon-button color="primary" routerLink="/patients" data-testid="nav-patients-btn" aria-label="Patients">
+      <span class="material-symbols-outlined">group</span>
+    </button>
+
+    <mat-form-field appearance="outline" class="ward-select-field">
+      <mat-label>Ward</mat-label>
+      <mat-select [value]="currentWard()"
+                  (selectionChange)="onWardChange($event.value)"
+                  data-testid="ward-selector">
+        @for (w of wards; track w) {
+          <mat-option [value]="w">{{ w }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <div class="user-avatar" data-testid="user-indicator">DA</div>
+  </div>
+</header>
+
+<!-- ─── Page content ──────────────────────────────────────────────────────── -->
+<main class="ward-main">
+
+  <!-- Breadcrumb + title -->
+  <section class="page-title-section">
+    <nav class="breadcrumb">
+      <span class="bc-item">WARDS</span>
+      <span class="material-symbols-outlined bc-sep">chevron_right</span>
+      <span class="bc-item bc-active">{{ currentWard() }}</span>
+    </nav>
+    <h2 class="page-title">Ward Overview — {{ currentWard() }}</h2>
+  </section>
+
+  <!-- Summary chips -->
+  <section class="summary-chips">
+    <div class="summary-chip" data-testid="summary-chip-flagged">
+      <span class="material-symbols-outlined chip-icon warn-icon">flag</span>
+      <span>{{ flaggedCount() }} with flags</span>
+    </div>
+    <div class="summary-chip" data-testid="summary-chip-no-vitals">
+      <span class="material-symbols-outlined chip-icon">heart_minus</span>
+      <span>{{ noVitalsCount() }} no vitals</span>
+    </div>
+    <div class="summary-chip" data-testid="summary-chip-problems">
+      <span class="material-symbols-outlined chip-icon">medical_services</span>
+      <span>{{ activeProblems() }} active problems</span>
+    </div>
+  </section>
+
+  <!-- Loading / Error / Table -->
+  @if (loading()) {
+    <app-loading-spinner [overlay]="false" />
+  } @else if (error()) {
+    <div class="error-state" data-testid="error-state">
+      <span class="material-symbols-outlined">error_outline</span>
+      <p>Failed to load ward overview.</p>
+      <button mat-stroked-button (click)="refresh()" data-testid="retry-btn">Retry</button>
+    </div>
+  } @else if (!overview() || overview()!.patientCount === 0) {
+    <div class="empty-state" data-testid="empty-state">
+      <span class="material-symbols-outlined empty-icon">person_off</span>
+      <p>No active patients in {{ currentWard() }}.</p>
+    </div>
+  } @else {
+    <div class="table-card" data-testid="ward-overview-table">
+      <table mat-table [dataSource]="overview()!.patients" matSort class="ward-table">
+
+        <!-- # -->
+        <ng-container matColumnDef="index">
+          <th mat-header-cell *matHeaderCellDef class="col-index">#</th>
+          <td mat-cell *matCellDef="let p; let i = index" class="col-index">{{ i + 1 }}</td>
+        </ng-container>
+
+        <!-- Patient -->
+        <ng-container matColumnDef="patient">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Patient</th>
+          <td mat-cell *matCellDef="let p" class="patient-cell"
+              (click)="navigate(p.patientId)" data-testid="patient-row">
+            <span class="patient-avatar">{{ p.firstName[0] }}{{ p.lastName[0] }}</span>
+            <span class="patient-name">{{ p.lastName }}, {{ p.firstName }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Status -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let p">
+            <span class="status-chip"
+                  [class]="'status-' + p.status.toLowerCase()"
+                  [attr.data-testid]="'status-chip-' + p.status">
+              {{ p.status }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- BP -->
+        <ng-container matColumnDef="bp">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>BP</th>
+          <td mat-cell *matCellDef="let p" data-testid="vitals-cell-bp" class="vitals-cell">
+            {{ bpText(p) }}
+          </td>
+        </ng-container>
+
+        <!-- HR -->
+        <ng-container matColumnDef="hr">
+          <th mat-header-cell *matHeaderCellDef>HR</th>
+          <td mat-cell *matCellDef="let p" data-testid="vitals-cell-heartRate" class="vitals-cell">
+            {{ p.latestVitals?.heartRate ?? '—' }}
+          </td>
+        </ng-container>
+
+        <!-- Temp -->
+        <ng-container matColumnDef="temp">
+          <th mat-header-cell *matHeaderCellDef>Temp</th>
+          <td mat-cell *matCellDef="let p" data-testid="vitals-cell-temperature" class="vitals-cell">
+            {{ p.latestVitals?.temperature ?? '—' }}
+          </td>
+        </ng-container>
+
+        <!-- SpO₂ -->
+        <ng-container matColumnDef="spo2">
+          <th mat-header-cell *matHeaderCellDef>SpO₂</th>
+          <td mat-cell *matCellDef="let p" data-testid="vitals-cell-spo2" class="vitals-cell">
+            {{ p.latestVitals?.oxygenSaturation !== null && p.latestVitals?.oxygenSaturation !== undefined
+               ? p.latestVitals!.oxygenSaturation + '%' : '—' }}
+          </td>
+        </ng-container>
+
+        <!-- Problems -->
+        <ng-container matColumnDef="problems">
+          <th mat-header-cell *matHeaderCellDef>Prb</th>
+          <td mat-cell *matCellDef="let p" data-testid="active-problem-count" class="col-num">
+            {{ p.activeProblemCount }}
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns" class="table-header-row"></tr>
+        <tr mat-row *matRowDef="let p; columns: columns"
+            [class]="rowClass(p)"
+            class="table-data-row clickable"></tr>
+      </table>
+    </div>
+  }
+</main>

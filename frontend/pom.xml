@@ -26,22 +26,22 @@
                 <version>1.15.0</version>
                 <configuration>
                     <nodeVersion>v20.12.0</nodeVersion>
-                    <npmVersion>10.5.0</npmVersion>
+                    <pnpmVersion>10.26.2</pnpmVersion>
                     <installDirectory>${project.basedir}</installDirectory>
                     <workingDirectory>${project.basedir}</workingDirectory>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>install-node-and-npm</id>
+                        <id>install-node-and-pnpm</id>
                         <goals>
-                            <goal>install-node-and-npm</goal>
+                            <goal>install-node-and-pnpm</goal>
                         </goals>
                         <phase>generate-resources</phase>
                     </execution>
                     <execution>
-                        <id>npm-install</id>
+                        <id>pnpm-install</id>
                         <goals>
-                            <goal>npm</goal>
+                            <goal>pnpm</goal>
                         </goals>
                         <phase>generate-resources</phase>
                         <configuration>
@@ -49,9 +49,9 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm-build</id>
+                        <id>pnpm-build</id>
                         <goals>
-                            <goal>npm</goal>
+                            <goal>pnpm</goal>
                         </goals>
                         <phase>prepare-package</phase>
                         <configuration>

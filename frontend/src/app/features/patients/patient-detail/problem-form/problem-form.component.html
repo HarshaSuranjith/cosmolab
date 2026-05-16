@@ -1,0 +1,67 @@
+<div style="position:relative">
+  @if (loading()) { <app-loading-spinner [overlay]="true" /> }
+
+  <h2 mat-dialog-title>Add Problem</h2>
+
+  <mat-dialog-content>
+    <form [formGroup]="form" class="problem-form">
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>ICD-10 Code *</mat-label>
+        <input matInput formControlName="icd10Code" placeholder="e.g. I10"
+               data-testid="icd10-input">
+        @if (icd10Error) {
+          <mat-error>{{ icd10Error }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Diagnosis Name *</mat-label>
+        <input matInput formControlName="displayName" placeholder="e.g. Essential Hypertension"
+               data-testid="display-name-input">
+        @if (form.get('displayName')?.errors?.['required'] && form.get('displayName')?.touched) {
+          <mat-error>Diagnosis name is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Severity *</mat-label>
+        <mat-select formControlName="severity" data-testid="severity-select">
+          @for (s of severities; track s) {
+            <mat-option [value]="s">
+              <app-severity-badge [severity]="s" />
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status" data-testid="status-select">
+          @for (s of statuses; track s) {
+            <mat-option [value]="s">{{ s }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Onset Date</mat-label>
+        <input matInput [matDatepicker]="onsetPicker" formControlName="onsetDate"
+               data-testid="onset-date-input" [max]="today">
+        <mat-datepicker-toggle matIconSuffix [for]="onsetPicker" />
+        <mat-datepicker #onsetPicker />
+      </mat-form-field>
+
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-raised-button color="primary"
+            [disabled]="form.invalid || loading()"
+            (click)="submit()"
+            data-testid="submit-btn">
+      Add Problem
+    </button>
+  </mat-dialog-actions>
+</div>

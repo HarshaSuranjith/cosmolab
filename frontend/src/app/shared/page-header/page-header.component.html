@@ -1,0 +1,14 @@
+<div class="page-header" data-testid="page-header">
+  <div class="header-left">
+    <span class="material-symbols-outlined header-icon">{{ icon() }}</span>
+    <div class="header-titles">
+      <h2 class="header-title">{{ title() }}</h2>
+      @if (subtitle()) {
+        <p class="header-subtitle">{{ subtitle() }}</p>
+      }
+    </div>
+  </div>
+  <div class="header-actions">
+    <ng-content select="[actions]" />
+  </div>
+</div>

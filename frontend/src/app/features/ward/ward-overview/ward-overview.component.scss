@@ -1,0 +1,199 @@
+// ─── Header ───────────────────────────────────────────────────────────────────
+.ward-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  background: var(--nc-surface);
+  border-bottom: 1px solid var(--nc-outline-variant);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+
+  .brand-icon {
+    color: var(--nc-primary);
+    font-size: 24px;
+  }
+
+  .brand-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--nc-primary);
+    letter-spacing: -0.01em;
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ward-select-field {
+  width: 160px;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  background: var(--nc-secondary-container);
+  color: var(--nc-on-secondary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+// ─── Main content ─────────────────────────────────────────────────────────────
+.ward-main {
+  padding-top: 76px;
+  padding-left: 24px;
+  padding-right: 24px;
+  padding-bottom: 32px;
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--nc-on-surface-variant);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+
+  .bc-sep { font-size: 12px; }
+  .bc-active { color: var(--nc-primary); }
+}
+
+.page-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--nc-on-surface);
+  letter-spacing: -0.02em;
+  line-height: 36px;
+}
+
+// ─── Summary chips ────────────────────────────────────────────────────────────
+.summary-chips {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.summary-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--nc-surface-lowest);
+  border: 1px solid var(--nc-outline-variant);
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--nc-on-surface);
+
+  .chip-icon {
+    font-size: 18px;
+    color: var(--nc-secondary);
+  }
+
+  .warn-icon { color: var(--nc-severity-moderate); }
+}
+
+// ─── Table ────────────────────────────────────────────────────────────────────
+.table-card {
+  background: var(--nc-surface-lowest);
+  border: 1px solid var(--nc-outline-variant);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.ward-table {
+  width: 100%;
+}
+
+.table-header-row {
+  background: var(--nc-surface-container);
+}
+
+.table-data-row.clickable {
+  cursor: pointer;
+  transition: background 0.1s;
+
+  &:hover { background: var(--nc-surface-low) !important; }
+}
+
+.patient-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.patient-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  background: var(--nc-secondary-container);
+  color: var(--nc-on-secondary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.patient-name {
+  font-weight: 500;
+  color: var(--nc-on-surface);
+}
+
+.vitals-cell {
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.col-index { width: 40px; color: var(--nc-outline); }
+.col-num { text-align: right; }
+
+// ─── States ───────────────────────────────────────────────────────────────────
+.error-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64px 24px;
+  color: var(--nc-outline);
+  text-align: center;
+  gap: 8px;
+
+  .material-symbols-outlined { font-size: 48px; }
+
+  .empty-icon { color: var(--nc-surface-highest); }
+  p { margin: 0; font-size: 14px; }
+}

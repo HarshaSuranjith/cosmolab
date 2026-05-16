@@ -1,0 +1,152 @@
+:host { display: block; }
+
+.admin-content {
+  padding: 24px;
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// ─── Health card ──────────────────────────────────────────────────────────────
+.health-card {
+  width: 100%;
+  margin: 0;
+
+  .health-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+  }
+}
+
+.health-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.health-icon {
+  font-size: 28px;
+  color: var(--nc-primary);
+  flex-shrink: 0;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--nc-on-surface);
+}
+
+.card-subtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--nc-secondary);
+}
+
+.health-indicators {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding-left: 40px;
+}
+
+.health-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--nc-on-surface-variant);
+
+  strong { color: var(--nc-on-surface); }
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &.loading {
+    background: var(--nc-outline);
+    animation: pulse 1.5s infinite;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+// ─── Service link grid ────────────────────────────────────────────────────────
+.link-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+
+  @media (max-width: 720px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.link-card {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--nc-surface-lowest);
+  border: 1px solid var(--nc-outline-variant);
+  border-radius: 4px;
+  text-decoration: none;
+  color: var(--nc-on-surface);
+  transition: border-color 0.15s, background 0.15s;
+
+  &:hover {
+    background: var(--nc-surface-low);
+    border-color: var(--nc-primary);
+
+    .link-arrow { color: var(--nc-primary); }
+  }
+}
+
+.link-icon {
+  font-size: 24px;
+  color: var(--nc-primary);
+  flex-shrink: 0;
+}
+
+.link-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.link-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--nc-on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.link-subtitle {
+  font-size: 12px;
+  color: var(--nc-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.link-arrow {
+  font-size: 16px;
+  color: var(--nc-outline);
+  flex-shrink: 0;
+  transition: color 0.15s;
+}

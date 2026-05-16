@@ -1,0 +1,250 @@
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (error()) {
+  <div class="state-box" data-testid="error-state">
+    <span class="material-symbols-outlined state-icon">error_outline</span>
+    <p>Failed to load patient.</p>
+    <button mat-stroked-button (click)="goBack()" data-testid="retry-btn">Back to list</button>
+  </div>
+} @else if (patient()) {
+  @let p = patient()!;
+  @let e = ehr();
+
+  <!-- ─── Patient header card ──────────────────────────────────────────── -->
+  <div class="detail-header" data-testid="patient-detail-header">
+    <button mat-icon-button (click)="goBack()" class="back-btn" data-testid="back-btn">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+
+    <div class="header-info">
+      <div class="patient-avatar-lg">{{ initials() }}</div>
+      <div class="header-meta">
+        <h2 class="patient-fullname">{{ p.firstName }} {{ p.lastName }}</h2>
+        <p class="patient-sub">
+          {{ p.ward }}&nbsp;•&nbsp;
+          @if (e) { EHR: <span class="mono">{{ e.ehrId }}</span> }
+        </p>
+        <p class="patient-sub mono">{{ p.personalNumber }}&nbsp;•&nbsp;{{ p.dateOfBirth }}</p>
+      </div>
+    </div>
+
+    <div class="header-chips">
+      <span class="status-chip"
+            [class]="'status-' + p.status.toLowerCase()"
+            [attr.data-testid]="'status-chip-' + p.status">
+        {{ p.status }}
+      </span>
+      <span class="gender-chip">{{ genderLabel(p.gender) }}</span>
+    </div>
+  </div>
+
+  <!-- ─── Tab group ─────────────────────────────────────────────────────── -->
+  <mat-tab-group class="detail-tabs" animationDuration="150ms">
+
+    <!-- Overview Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <span data-testid="tab-overview">Overview</span>
+      </ng-template>
+      <div class="tab-content two-col-grid">
+
+        <!-- Demographics card -->
+        <mat-card class="detail-card" appearance="outlined">
+          <mat-card-header><mat-card-title>Demographics</mat-card-title></mat-card-header>
+          <mat-card-content>
+            <dl class="detail-list">
+              <div class="dl-row"><dt>First name</dt><dd>{{ p.firstName }}</dd></div>
+              <div class="dl-row"><dt>Last name</dt><dd>{{ p.lastName }}</dd></div>
+              <div class="dl-row"><dt>Personnummer</dt><dd class="mono">{{ p.personalNumber }}</dd></div>
+              <div class="dl-row"><dt>Date of birth</dt><dd>{{ p.dateOfBirth }}</dd></div>
+              <div class="dl-row"><dt>Gender</dt><dd>{{ p.gender }}</dd></div>
+              <div class="dl-row"><dt>Ward</dt><dd>{{ p.ward }}</dd></div>
+              <div class="dl-row"><dt>Status</dt>
+                <dd>
+                  <span class="status-chip" [class]="'status-' + p.status.toLowerCase()">{{ p.status }}</span>
+                </dd>
+              </div>
+              <div class="dl-row"><dt>Record created</dt><dd>{{ p.createdAt | date:'yyyy-MM-dd' }}</dd></div>
+            </dl>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Latest vitals snapshot -->
+        <mat-card class="detail-card" appearance="outlined">
+          <mat-card-header><mat-card-title>Latest Vitals</mat-card-title></mat-card-header>
+          <mat-card-content>
+            <div data-testid="overview-vitals-grid">
+              @if (vitals().length > 0) {
+                @let lv = vitals()[0];
+                <div class="vitals-grid">
+                  <div class="vitals-card">
+                    <span class="vc-label">BP</span>
+                    <span class="vc-val">{{ lv.systolicBp ?? '—' }}/{{ lv.diastolicBp ?? '—' }}</span>
+                  </div>
+                  <div class="vitals-card">
+                    <span class="vc-label">HR</span>
+                    <span class="vc-val">{{ lv.heartRate ?? '—' }} bpm</span>
+                  </div>
+                  <div class="vitals-card">
+                    <span class="vc-label">RR</span>
+                    <span class="vc-val">{{ lv.respiratoryRate ?? '—' }} /min</span>
+                  </div>
+                  <div class="vitals-card">
+                    <span class="vc-label">Temp</span>
+                    <span class="vc-val">{{ lv.temperature !== null ? lv.temperature + '°C' : '—' }}</span>
+                  </div>
+                  <div class="vitals-card">
+                    <span class="vc-label">SpO₂</span>
+                    <span class="vc-val">{{ lv.oxygenSaturation !== null ? lv.oxygenSaturation + '%' : '—' }}</span>
+                  </div>
+                  <div class="vitals-card">
+                    <span class="vc-label">Weight</span>
+                    <span class="vc-val">{{ lv.weight !== null ? lv.weight + ' kg' : '—' }}</span>
+                  </div>
+                </div>
+                <p class="vitals-ts">Recorded {{ lv.recordedAt | date:'yyyy-MM-dd HH:mm' }} by {{ lv.recordedBy }}</p>
+              } @else {
+                <p class="no-data">No vitals recorded.</p>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- Vitals Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <span data-testid="tab-vitals">Vitals</span>
+      </ng-template>
+      <div class="tab-content" data-testid="tab-content-vitals">
+        <div class="tab-action-bar">
+          <button mat-raised-button color="primary"
+                  (click)="openVitalsDialog()"
+                  data-testid="create-vitals-btn">
+            + Add Vital Signs
+          </button>
+        </div>
+        <app-vital-signs-chart [readings]="vitals()" [compact]="false" />
+      </div>
+    </mat-tab>
+
+    <!-- Problems Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <span data-testid="tab-problems">Problems</span>
+      </ng-template>
+      <div class="tab-content" data-testid="tab-content-problems">
+        <div class="tab-action-bar">
+          <button mat-raised-button color="primary"
+                  (click)="openProblemDialog()"
+                  data-testid="add-problem-btn">
+            + Add Problem
+          </button>
+          <mat-form-field appearance="outline" class="tab-filter">
+            <mat-label>Status</mat-label>
+            <mat-select [value]="problemStatusFilter()"
+                        (selectionChange)="onProblemStatusChange($event.value)">
+              <mat-option value="ACTIVE">ACTIVE</mat-option>
+              <mat-option value="ALL">All</mat-option>
+              <mat-option value="RESOLVED">RESOLVED</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        @if (problems().length === 0) {
+          <div class="state-box" data-testid="empty-state">
+            <span class="material-symbols-outlined state-icon">medical_services</span>
+            <p>No problems found.</p>
+          </div>
+        } @else {
+          <div class="table-card">
+            <table mat-table [dataSource]="problems()" class="detail-table">
+              <ng-container matColumnDef="icd10Code">
+                <th mat-header-cell *matHeaderCellDef>ICD-10</th>
+                <td mat-cell *matCellDef="let r" class="mono">{{ r.icd10Code }}</td>
+              </ng-container>
+              <ng-container matColumnDef="displayName">
+                <th mat-header-cell *matHeaderCellDef>Diagnosis</th>
+                <td mat-cell *matCellDef="let r">{{ r.displayName }}</td>
+              </ng-container>
+              <ng-container matColumnDef="severity">
+                <th mat-header-cell *matHeaderCellDef>Severity</th>
+                <td mat-cell *matCellDef="let r">
+                  <app-severity-badge [severity]="r.severity" />
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let r">
+                  <span class="status-chip" [class]="'status-' + r.status.toLowerCase()">{{ r.status }}</span>
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="onsetDate">
+                <th mat-header-cell *matHeaderCellDef>Onset</th>
+                <td mat-cell *matCellDef="let r" class="mono">{{ r.onsetDate ?? '—' }}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="problemColumns" class="header-row"></tr>
+              <tr mat-row *matRowDef="let r; columns: problemColumns"
+                  data-testid="problem-row"
+                  [class.resolved-row]="r.status === 'RESOLVED' || r.status === 'REFUTED'"></tr>
+            </table>
+          </div>
+        }
+      </div>
+    </mat-tab>
+
+    <!-- Compositions Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <span data-testid="tab-compositions">Compositions</span>
+      </ng-template>
+      <div class="tab-content" data-testid="tab-content-compositions">
+        @if (compositions().length === 0) {
+          <div class="state-box" data-testid="empty-state">
+            <span class="material-symbols-outlined state-icon">description</span>
+            <p>No compositions found.</p>
+          </div>
+        } @else {
+          <div class="table-card">
+            <table mat-table [dataSource]="compositions()" class="detail-table">
+              <ng-container matColumnDef="type">
+                <th mat-header-cell *matHeaderCellDef>Type</th>
+                <td mat-cell *matCellDef="let r">{{ r.type }}</td>
+              </ng-container>
+              <ng-container matColumnDef="facilityName">
+                <th mat-header-cell *matHeaderCellDef>Facility</th>
+                <td mat-cell *matCellDef="let r">{{ r.facilityName }}</td>
+              </ng-container>
+              <ng-container matColumnDef="startTime">
+                <th mat-header-cell *matHeaderCellDef>Start Time</th>
+                <td mat-cell *matCellDef="let r" class="mono">{{ r.startTime | date:'yyyy-MM-dd HH:mm' }}</td>
+              </ng-container>
+              <ng-container matColumnDef="commitTime">
+                <th mat-header-cell *matHeaderCellDef>Commit Time</th>
+                <td mat-cell *matCellDef="let r" class="mono">{{ r.commitTime | date:'yyyy-MM-dd HH:mm' }}</td>
+              </ng-container>
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let r">{{ r.status }}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="compositionColumns" class="header-row"></tr>
+              <tr mat-row *matRowDef="let r; columns: compositionColumns"
+                  data-testid="composition-row"></tr>
+            </table>
+
+            <mat-paginator
+              [length]="compositionTotal()"
+              [pageSize]="10"
+              (page)="onCompositionPage($event)"
+              data-testid="composition-paginator">
+            </mat-paginator>
+          </div>
+        }
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+}

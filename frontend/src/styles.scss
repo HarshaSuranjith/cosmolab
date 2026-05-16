@@ -1,0 +1,209 @@
+@use '@angular/material' as mat;
+
+// ─── Nordic Clinical M2 theme ─────────────────────────────────────────────────
+$nordic-primary-map: (
+  50:  #e0f2ee, 100: #b2dfda, 200: #80cab8, 300: #4db596,
+  400: #26a67f, 500: #00976a, 600: #008060, 700: #006a4e,
+  800: #004d40, 900: #00342b,
+  A100: #94d3c1, A200: #7ebdac, A400: #29695b, A700: #065043,
+  contrast: (
+    50:   rgba(0,0,0,.87), 100: rgba(0,0,0,.87), 200: rgba(0,0,0,.87),
+    300:  rgba(0,0,0,.87), 400: rgba(0,0,0,.87), 500: #ffffff,
+    600:  #ffffff,         700: #ffffff,          800: #ffffff,
+    900:  #ffffff,
+    A100: rgba(0,0,0,.87), A200: rgba(0,0,0,.87),
+    A400: #ffffff,         A700: #ffffff,
+  ),
+);
+
+$cosmolab-primary: mat.m2-define-palette($nordic-primary-map, 900, 100, 700);
+$cosmolab-accent:  mat.m2-define-palette(mat.$m2-amber-palette, 700, 200, 900);
+$cosmolab-warn:    mat.m2-define-palette(mat.$m2-red-palette, 800);
+
+$cosmolab-theme: mat.m2-define-light-theme((
+  color: (
+    primary: $cosmolab-primary,
+    accent:  $cosmolab-accent,
+    warn:    $cosmolab-warn,
+  ),
+  typography: mat.m2-define-typography-config(
+    $font-family: "'Inter', sans-serif",
+    $body-1: mat.m2-define-typography-level(14px, 20px, 400),
+    $subtitle-1: mat.m2-define-typography-level(16px, 24px, 600),
+    $headline-5: mat.m2-define-typography-level(28px, 36px, 600, $letter-spacing: -0.02em),
+  ),
+  density: -1,
+));
+
+@include mat.all-component-themes($cosmolab-theme);
+
+// ─── Shared compact height token ─────────────────────────────────────────────
+// Single source of truth: change this one value to resize all inputs + buttons.
+// We do NOT use mat.form-field-density() — it generates higher-specificity rules
+// that differ between mat-input and mat-select and break height alignment.
+// Instead we pin all relevant MDC tokens directly after the theme include so
+// both input and select form fields render at exactly --nc-control-height.
+:root {
+  --nc-control-height: 36px;
+}
+
+// Applies to the outlined container wrapper (both mat-input and mat-select).
+.mat-mdc-form-field {
+  --mdc-outlined-text-field-container-height:  var(--nc-control-height);
+  --mdc-filled-text-field-container-height:    var(--nc-control-height);
+  --mat-form-field-container-height:           var(--nc-control-height);
+  --mat-form-field-container-vertical-padding: 7px;
+}
+
+// mat-select trigger height must be set on the select element itself;
+// it does not inherit from the parent form-field custom property.
+.mat-mdc-select {
+  --mat-select-trigger-height: var(--nc-control-height);
+}
+
+// Buttons reference the same token so siblings are always the same height.
+.mat-mdc-button-base {
+  --mdc-text-button-container-height:      var(--nc-control-height);
+  --mdc-outlined-button-container-height:  var(--nc-control-height);
+  --mdc-protected-button-container-height: var(--nc-control-height);
+  --mdc-filled-button-container-height:    var(--nc-control-height);
+}
+
+// ─── Material shape overrides ─────────────────────────────────────────────────
+:root {
+  --mdc-shape-small:  4px;
+  --mdc-shape-medium: 4px;
+  --mdc-shape-large:  8px;
+}
+
+// ─── Nordic Clinical CSS custom properties ────────────────────────────────────
+:root {
+  // Primary
+  --nc-primary:                #00342b;
+  --nc-on-primary:             #ffffff;
+  --nc-primary-container:      #004d40;
+  --nc-on-primary-container:   #7ebdac;
+  --nc-inverse-primary:        #94d3c1;
+  --nc-primary-fixed:          #afefdd;
+  --nc-primary-fixed-dim:      #94d3c1;
+  --nc-on-primary-fixed:       #00201a;
+  --nc-on-primary-fixed-variant: #065043;
+
+  // Secondary
+  --nc-secondary:              #5e5e5e;
+  --nc-on-secondary:           #ffffff;
+  --nc-secondary-container:    #e1dfdf;
+  --nc-on-secondary-container: #626262;
+
+  // Tertiary
+  --nc-tertiary:               #262f32;
+  --nc-on-tertiary:            #ffffff;
+  --nc-tertiary-container:     #3c4548;
+  --nc-on-tertiary-container:  #a9b2b6;
+
+  // Surface
+  --nc-surface:                #f9f9f9;
+  --nc-background:             #f9f9f9;
+  --nc-on-background:          #1a1c1c;
+  --nc-surface-dim:            #dadada;
+  --nc-surface-lowest:         #ffffff;
+  --nc-surface-low:            #f3f3f3;
+  --nc-surface-container:      #eeeeee;
+  --nc-surface-high:           #e8e8e8;
+  --nc-surface-highest:        #e2e2e2;
+  --nc-surface-variant:        #e2e2e2;
+  --nc-surface-tint:           #29695b;
+  --nc-on-surface:             #1a1c1c;
+  --nc-on-surface-variant:     #3f4945;
+  --nc-inverse-surface:        #2f3131;
+  --nc-inverse-on-surface:     #f1f1f1;
+  --nc-outline:                #707975;
+  --nc-outline-variant:        #bfc9c4;
+
+  // Error
+  --nc-error:                  #ba1a1a;
+  --nc-on-error:               #ffffff;
+  --nc-error-container:        #ffdad6;
+  --nc-on-error-container:     #93000a;
+
+  // Semantic clinical
+  --nc-severity-mild:     #388e3c;
+  --nc-severity-moderate: #f9a825;
+  --nc-severity-severe:   #ba1a1a;
+}
+
+// ─── Global resets ────────────────────────────────────────────────────────────
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  background-color: var(--nc-background);
+  color: var(--nc-on-surface);
+}
+
+// ─── Material Symbols Outlined ────────────────────────────────────────────────
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  user-select: none;
+}
+
+// ─── Dense table rows (36px height) ──────────────────────────────────────────
+.mat-mdc-row {
+  height: 36px !important;
+}
+
+.mat-mdc-cell,
+.mat-mdc-header-cell {
+  padding: 6px 12px !important;
+}
+
+// ─── Snackbar error panel ─────────────────────────────────────────────────────
+.snackbar-error .mdc-snackbar__surface {
+  background-color: var(--nc-error-container) !important;
+  color: var(--nc-on-error-container) !important;
+}
+
+// ─── Flagged vital rows ───────────────────────────────────────────────────────
+.row-flagged {
+  background-color: color-mix(in srgb, #f9a825 15%, transparent) !important;
+}
+
+.row-critical {
+  background-color: color-mix(in srgb, var(--nc-error-container) 20%, transparent) !important;
+}
+
+// ─── Status chips (global — patient-list, patient-detail, ward-overview) ─────
+.status-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.status-active      { background: #e8f5e9; color: #2e7d32; }
+.status-discharged  { background: #ede7f6; color: #5c6bc0; }
+.status-transferred { background: #fff3e0; color: #e65100; }
+.status-inactive    { background: #f5f5f5; color: #757575; }
+.status-resolved    { background: #e0f7fa; color: #00695c; }
+.status-refuted     { background: #f5f5f5; color: var(--nc-outline); }
+
+// ─── Utility: scrollbar hide ──────────────────────────────────────────────────
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+// ─── Sidenav container full height ───────────────────────────────────────────
+.app-sidenav-container {
+  position: fixed;
+  inset: 0;
+}

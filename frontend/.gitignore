@@ -1,0 +1,27 @@
+# Angular
+dist/
+.angular/
+node/
+node_modules/
+
+# pnpm lockfile is committed; virtual store is not
+.pnpm-store/
+
+# Build artifacts
+*.js.map
+
+# IDE
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+
+# Environment — contains local overrides; never commit secrets
+.env

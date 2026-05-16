@@ -1,0 +1,51 @@
+:host {
+  display: block;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: var(--nc-surface-lowest);
+  border-bottom: 1px solid var(--nc-outline-variant);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-icon {
+  font-size: 24px;
+  color: var(--nc-primary);
+}
+
+.header-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.header-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--nc-on-surface);
+  letter-spacing: -0.01em;
+  line-height: 28px;
+}
+
+.header-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: var(--nc-on-surface-variant);
+  line-height: 18px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

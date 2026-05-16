@@ -1,6 +1,6 @@
 ---
 description: Enterprise UI specification for the CosmoLab Angular frontend — design system, layout, page-by-page wireframes, component contracts, data bindings, interaction patterns, and data-testid inventory.
-globs: cosmolab-frontend/src/**/*.ts,cosmolab-frontend/src/**/*.html,cosmolab-frontend/src/**/*.scss
+globs: frontend/src/**/*.ts,frontend/src/**/*.html,frontend/src/**/*.scss
 alwaysApply: false
 ---
 
@@ -10,6 +10,64 @@ alwaysApply: false
 > Every page, component, form, state, and `data-testid` is defined here.
 > The Angular conventions and module structure live in [`frontend-angular.md`](frontend-angular.md).
 > The clinical data model the UI renders is in [`clinical-domain.md`](clinical-domain.md).
+>
+> **Design reference** — pixel-accurate HTML mockups and the design system token file live in:
+> `docs/stitch_sleek_nordic_enterprise_ui/`
+>
+> | Screen | HTML mockup | Screenshot |
+> |---|---|---|
+> | Design tokens | `nordic_clinical/DESIGN.md` | — |
+> | Ward Overview | `ward_overview_icu/code.html` | `screen.png` |
+> | Patient List | `patient_list/code.html` | `screen.png` |
+> | Patient Detail — Overview tab | `patient_detail_overview/code.html` | `screen.png` |
+> | Patient Detail — Vitals tab | `patient_detail_vitals/code.html` | `screen.png` |
+> | Add Vital Signs form | `add_vital_signs_form/code.html` | `screen.png` |
+>
+> When any detail in this spec conflicts with those HTML files, **the HTML files win**.
+
+---
+
+## 0. Guiding Principles
+
+These rules apply to every file in the frontend. Deviate only when the framework explicitly requires it.
+
+### 0.1 Separation of Concerns
+
+| Concern | Where it lives | Must NOT |
+|---|---|---|
+| HTTP and data fetching | Service (`*.service.ts`) | Render anything; import components |
+| Display and interaction | Component (`.ts` + `.html`) | Call `HttpClient` directly; contain business logic |
+| Types / interfaces | `core/models/*.model.ts` | Import Angular; contain logic |
+| State derivation | `computed()` in the component | Trigger side effects; call services |
+| Side effects (routing, snackbar) | Method bodies or `effect()` | Go inside `computed()` |
+| Styles | `*.component.scss` | Reach outside the component (no global selectors) |
+| Threshold / range logic | `shared/utils/*.util.ts` (pure functions) | Live inline in components or templates |
+
+### 0.2 File Structure Rules
+
+- Every component lives in its own folder: `component-name/component-name.component.ts|.html|.scss`
+- No inline templates or inline styles except for trivially single-element components
+- No logic in templates beyond signal reads, method calls, and simple ternary display expressions
+- Interfaces are never declared inside component or service files — import from `core/models/`
+- Services used by only one feature live in that feature's folder, not in `core/`
+
+### 0.3 Angular-Specific Best Practices
+
+- **`inject()`** everywhere — no constructor injection
+- **`ChangeDetectionStrategy.OnPush`** on every component — no exceptions
+- **Signal inputs** (`input()`, `input.required()`) and **signal outputs** (`output()`) for all component I/O
+- **`@if` / `@for` / `@switch` / `@defer`** — never `*ngIf`, `*ngFor`, `NgIf`, `NgFor`
+- **`toSignal()`** to convert HTTP Observables at the component boundary — never subscribe manually unless unavoidable
+- **`takeUntilDestroyed()`** for any manual subscription that cannot use `toSignal()`
+- No `BehaviorSubject` or `Subject` in components — use `signal()` instead
+- No `async` pipe — signals are synchronous and require no pipe
+- `protected` visibility for template-accessed members; `private` for everything else
+
+### 0.4 Smart vs. Presentational Components
+
+- **Smart (container) components** — own the data: call services, hold signals, handle routing. One per route.
+- **Presentational (dumb) components** — receive data via `input()`, emit events via `output()`. No service injection.
+- All shared components (`severity-badge`, `loading-spinner`, `vital-signs-chart`) are always presentational.
 
 ---
 
@@ -17,31 +75,77 @@ alwaysApply: false
 
 ### 1.1 Colour Palette — Nordic Clinical
 
-CosmoLab uses the **Nordic Clinical** design system — a restricted, purposeful palette rooted in Nordic Minimalism. Deep forest green primary on arctic white surfaces, with semantic colours tuned for clinical safety. All CSS custom properties are declared in `styles.scss` under `:root` prefixed `--nc-*`.
+CosmoLab uses the **Nordic Clinical** design system — a restricted, purposeful palette rooted in Nordic Minimalism. Deep forest green primary on arctic white surfaces, with semantic colours tuned for clinical safety. All CSS custom properties are declared in `styles.scss` under `:root` prefixed `--nc-*`. The authoritative token file is `docs/stitch_sleek_nordic_enterprise_ui/nordic_clinical/DESIGN.md`.
+
+**Core M3 tokens — primary, secondary, tertiary:**
 
 | Token | CSS var | Hex | Usage |
 |---|---|---|---|
-| `primary` | `--nc-primary` | `#00342b` | Brand, primary buttons, active sidenav, clickable text |
-| `primary-container` | `--nc-primary-container` | `#004d40` | Sidenav background |
-| `on-primary` | `--nc-on-primary` | `#ffffff` | Text/icons on primary backgrounds |
-| `primary-fixed` | `--nc-primary-fixed` | `#afefdd` | Active nav item text; inverse-primary |
+| `primary` | `--nc-primary` | `#00342b` | Brand, primary buttons, ACTIVE ward chip bg |
+| `on-primary` | `--nc-on-primary` | `#ffffff` | Text/icons on primary; ACTIVE ward chip text |
+| `primary-container` | `--nc-primary-container` | `#004d40` | Sidenav background, secondary button hover |
+| `on-primary-container` | `--nc-on-primary-container` | `#7ebdac` | Text on primary-container |
+| `inverse-primary` | `--nc-inverse-primary` | `#94d3c1` | Active nav item text (on dark sidenav) |
+| `primary-fixed` | `--nc-primary-fixed` | `#afefdd` | Active nav item tonal highlight |
+| `primary-fixed-dim` | `--nc-primary-fixed-dim` | `#94d3c1` | Dimmer variant of primary-fixed |
+| `on-primary-fixed` | `--nc-on-primary-fixed` | `#00201a` | Text on primary-fixed |
+| `on-primary-fixed-variant` | `--nc-on-primary-fixed-variant` | `#065043` | Muted text on primary-fixed |
+| `secondary` | `--nc-secondary` | `#5e5e5e` | Secondary text, inactive nav icons |
+| `on-secondary` | `--nc-on-secondary` | `#ffffff` | Text on secondary bg |
+| `secondary-container` | `--nc-secondary-container` | `#e1dfdf` | Gender chip, patient initials avatar bg |
+| `on-secondary-container` | `--nc-on-secondary-container` | `#626262` | Text on secondary-container |
+| `secondary-fixed` | `--nc-secondary-fixed` | `#e4e2e2` | Fixed secondary surface |
+| `secondary-fixed-dim` | `--nc-secondary-fixed-dim` | `#c7c6c6` | Dimmer secondary-fixed |
+| `on-secondary-fixed` | `--nc-on-secondary-fixed` | `#1b1c1c` | Text on secondary-fixed |
+| `on-secondary-fixed-variant` | `--nc-on-secondary-fixed-variant` | `#464747` | Muted text on secondary-fixed |
+| `tertiary` | `--nc-tertiary` | `#262f32` | Deep neutral accent |
+| `on-tertiary` | `--nc-on-tertiary` | `#ffffff` | Text on tertiary bg |
+| `tertiary-container` | `--nc-tertiary-container` | `#3c4548` | Tertiary surface |
+| `on-tertiary-container` | `--nc-on-tertiary-container` | `#a9b2b6` | Text on tertiary-container |
+
+**Surface and background tokens:**
+
+| Token | CSS var | Hex | Usage |
+|---|---|---|---|
 | `surface` | `--nc-surface` | `#f9f9f9` | Page background |
+| `background` | `--nc-background` | `#f9f9f9` | M3 alias for surface |
+| `on-background` | `--nc-on-background` | `#1a1c1c` | Primary text on background |
+| `surface-dim` | `--nc-surface-dim` | `#dadada` | Skeleton loader, disabled surface |
 | `surface-container-lowest` | `--nc-surface-lowest` | `#ffffff` | Card and table backgrounds |
 | `surface-container-low` | `--nc-surface-low` | `#f3f3f3` | Row hover state |
 | `surface-container` | `--nc-surface-container` | `#eeeeee` | Table header background |
+| `surface-container-high` | `--nc-surface-high` | `#e8e8e8` | Selected row background |
+| `surface-container-highest` | `--nc-surface-highest` | `#e2e2e2` | Dividers, skeleton highlight |
+| `surface-variant` | `--nc-surface-variant` | `#e2e2e2` | Alias for surface-container-highest |
+| `surface-tint` | `--nc-surface-tint` | `#29695b` | Tonal overlay on primary surfaces |
 | `on-surface` | `--nc-on-surface` | `#1a1c1c` | Primary text |
 | `on-surface-variant` | `--nc-on-surface-variant` | `#3f4945` | Secondary text (labels, metadata) |
+| `inverse-surface` | `--nc-inverse-surface` | `#2f3131` | Snackbar, tooltip background |
+| `inverse-on-surface` | `--nc-inverse-on-surface` | `#f1f1f1` | Text on inverse-surface |
 | `outline` | `--nc-outline` | `#707975` | Muted text, disabled |
 | `outline-variant` | `--nc-outline-variant` | `#bfc9c4` | Table row separators, card borders, toolbar border |
+
+**Error tokens:**
+
+| Token | CSS var | Hex | Usage |
+|---|---|---|---|
 | `error` | `--nc-error` | `#ba1a1a` | Error states, validation messages, SEVERE badge, critical vitals |
-| `error-container` | `--nc-error-container` | `#ffdad6` | Critical row background |
-| `secondary-container` | `--nc-secondary-container` | `#e1dfdf` | Gender chip, initials avatar |
-| `status-active` | — | `#2e7d32` / bg `#e8f5e9` | ACTIVE chip |
-| `status-discharged` | — | `#3949ab` / bg `#e8eaf6` | DISCHARGED chip |
-| `status-transferred` | — | `#e65100` / bg `#fff3e0` | TRANSFERRED chip |
-| `severity-mild` | — | `#388e3c` | MILD severity badge |
-| `severity-moderate` | — | `#f9a825` | MODERATE badge; amber vital flag |
-| `severity-severe` | — | `#ba1a1a` | SEVERE badge; red vital flag |
+| `on-error` | `--nc-on-error` | `#ffffff` | Text on error bg |
+| `error-container` | `--nc-error-container` | `#ffdad6` | Flagged vital highlight, critical row tint |
+| `on-error-container` | `--nc-on-error-container` | `#93000a` | Text on error-container |
+
+**Semantic clinical tokens (project-defined in `styles.scss`):**
+
+| Token | CSS var | Value | Usage |
+|---|---|---|---|
+| `status-active` | `--nc-status-active` | bg `#00342b` text `#ffffff` | ACTIVE ward chip — solid primary, white text |
+| `status-discharged` | `--nc-status-discharged` | bg `#e8eaf6` text `#3949ab` | DISCHARGED chip |
+| `status-transferred` | `--nc-status-transferred` | bg `#fff3e0` text `#e65100` | TRANSFERRED chip |
+| `severity-mild` | `--nc-severity-mild` | `#388e3c` | MILD severity badge |
+| `severity-moderate` | `--nc-severity-moderate` | `#f9a825` | MODERATE badge; amber vital flag |
+| `severity-severe` | `--nc-severity-severe` | `#ba1a1a` | SEVERE badge; red vital flag (= `error`) |
+
+> **ACTIVE chip distinction**: The ward overview uses `bg-primary text-on-primary` (solid `#00342b`, white text) for ACTIVE patient status — a strong visual anchor, not a soft fill. Patient list clinical acuity chips (Stable / Observation / Critical) use soft semantic fills with dark text.
 
 **Depth / elevation**: No drop shadows. Depth is communicated through tonal layering and `1px solid outline-variant` borders on cards/tables.
 
@@ -124,7 +228,55 @@ Used by `VitalSignsChartComponent` and `WardOverviewComponent` to colour-code ce
 | SpO₂ | ≥ 95 % | Amber if 93–94; red if < 93 |
 | Weight | No range | Never flagged |
 
-Flag icons use `mat-icon` with `warning` (amber) and `error` (red) icon names, sized at 16px inline.
+Flag icons use `Material Symbols Outlined` with `warning` (amber) and `error_outline` (red) icon names at 16px — see §1.6 for icon setup.
+
+### 1.6 Icon Library, Border Radius, and Component Details
+
+**Icon library — Material Symbols Outlined (variable font)**
+
+Load in `index.html`:
+```html
+<link rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+```
+
+Default variation settings in `styles.scss`:
+```scss
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+```
+
+Use `<span class="material-symbols-outlined">icon_name</span>` in templates. Do **not** use `<mat-icon>` — it uses the older fixed-weight font family.
+
+**Border radius** — from DESIGN.md `rounded` scale:
+
+| Token | Value | Applied to |
+|---|---|---|
+| `rounded-sm` (sm) | `0.125rem` = 2px | Status chips, badge chips |
+| `rounded` (DEFAULT) | `0.25rem` = 4px | Inputs, buttons, cards |
+| `rounded-md` | `0.375rem` = 6px | Larger containers |
+| `rounded-lg` | `0.5rem` = 8px | Modal dialogs |
+| `rounded-full` | `9999px` | Circular avatars, FAB buttons |
+
+Override Material's defaults via `--mdc-*` CSS tokens in `styles.scss`:
+```scss
+:root {
+  --mdc-shape-small:  4px;   // inputs, chips
+  --mdc-shape-medium: 4px;   // cards, menus
+  --mdc-shape-large:  8px;   // dialogs
+}
+```
+
+**Input height**: 32px (density: -1 applied globally via `mat.define-light-theme`). Use `mat-form-field` with `appearance="outline"` and `subscriptSizing="dynamic"`.
+
+**Flagged rows** (abnormal vitals in ward overview / vitals table): Apply `background-color` as `color-mix(in srgb, var(--nc-error-container) 10%, transparent)` on the `<tr>`. Do **not** use a left border accent.
+
+**Patient initials avatar**: 32×32px circle, `background-color: var(--nc-secondary-container)`, 2-letter initials in `var(--nc-on-secondary-container)`. Class: `w-8 h-8 rounded-full bg-secondary-container`.
+
+**Ward overview bento summary cards**: Icon container is 40×40px with a tinted background (e.g. `bg-primary-container` for the primary metric). Card is 128px height, `1px solid outline-variant` border, no shadow.
+
+**FAB button** (ward overview — add vital signs): Fixed position, `border-radius: 50%`, 56×56px, `background: var(--nc-primary)`, `color: var(--nc-on-primary)`. Positioned `bottom: 32px; right: 32px` on desktop; `bottom: 80px` on mobile (above bottom nav).
 
 ---
 
@@ -132,59 +284,91 @@ Flag icons use `mat-icon` with `warning` (amber) and `error` (red) icon names, s
 
 ### 2.1 Layout Structure
 
+The app uses **two distinct layout patterns** depending on route — this is a deliberate design choice visible in the HTML mockups.
+
+**Dashboard layout** — Ward Overview (`/ward/:wardId`):
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  [Toolbar] CosmoLab        [Ward: ICU ▾]   [User: ●]   │  64px fixed top
-├──────────┬──────────────────────────────────────────────┤
-│          │                                              │
-│  [Sidenav│  [Router outlet — page content]             │
-│  240px   │                                              │
-│  fixed   │                                              │
-│          │                                              │
-└──────────┴──────────────────────────────────────────────┘
+│  [Header] CosmoLab ⚕  [Refresh ↺]  [Ward: ICU ▾] [●]  │  56px fixed top bar
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  [main — max-w-7xl mx-auto, pt-20, full width]          │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+         [Mobile bottom nav — hidden md:hidden]
 ```
 
-- `mat-sidenav-container` fills viewport height
-- Sidenav is `mode="side"` and always open on ≥ 1024px viewports; collapses to overlay on smaller screens with a hamburger toggle in the toolbar
-- Router outlet content scrolls independently; sidenav and toolbar are fixed
-- Page background: `background` (#F5F5F5)
+- No sidebar. Full-width content with `max-w-7xl mx-auto` centring.
+- Header: `surface` background, `1px solid outline-variant` bottom border, `position: fixed; top: 0; z-index: 50`.
+- On mobile: a bottom navigation bar replaces the sidebar (4 icon+label items).
+- Page background: `background` (`#f9f9f9`).
 
-### 2.2 Toolbar (`AppToolbarComponent`)
-
+**Record layout** — Patient List / Patient Detail (`/patients`, `/patients/:id`):
 ```
 ┌──────────────────────────────────────────────────────────┐
-│ ☰  CosmoLab CDSS    [Ward: ICU ▾]          ⚙ Admin  ●  │
+│ CosmoLab ⚕ │  [top app bar with breadcrumb / actions]   │
+│  Ward      │                                             │
+│  Patients  │  [Router outlet — page content]             │
+│  Admin     │                                             │
+│  240px     │                                             │
+│  fixed     │                                             │
+│  ─────     │                                             │
+│  Dr. ...   │                                             │
 └──────────────────────────────────────────────────────────┘
+```
+
+- 240px left sidebar (`position: fixed; inset-y: 0; left: 0`), `surface` background, `1px solid outline-variant` right border.
+- Sidebar hidden on mobile (`hidden md:flex`); main content `margin-left: 240px` on `≥ md`.
+- Sidebar contains: logo/wordmark at top, nav links (Ward, Patients, Admin), user info at bottom.
+- Active nav link: `on-surface` text with `surface-container-low` background; no left-border accent.
+- Main content area has its own top bar (breadcrumb + page actions).
+- Page background: `background` (`#f9f9f9`).
+
+### 2.2 Ward Header (`WardHeaderComponent`) — dashboard layout only
+
+Used on `/ward/:wardId`. Full-width fixed top bar, no hamburger.
+
+```
+┌────────────────────────────────────────────────────────────┐
+│  ⚕ CosmoLab   [↺ Refresh]   [Ward: ICU ▾]   [user avatar] │  56px
+└────────────────────────────────────────────────────────────┘
 ```
 
 | Element | Binding | Notes |
 |---|---|---|
-| Hamburger icon | toggles sidenav on mobile | `data-testid="nav-toggle"` |
-| "CosmoLab CDSS" wordmark | routes to `/` (→ ward/ICU) | `mat-icon-button` left of text with stethoscope SVG |
-| Ward selector | `mat-select` with hardcoded ward list: ICU, CARDIOLOGY, ONCOLOGY, NEUROLOGY | Routes to `/ward/:wardId` on change; `data-testid="ward-selector"` |
-| Admin link | icon button, navigates `/admin` | `data-testid="admin-link"` |
-| User indicator | green dot + "Demo User" label | Non-interactive; `data-testid="user-indicator"` |
+| `clinical_notes` icon + "CosmoLab" wordmark | routes to `/ward/ICU` | `data-testid="nav-logo"` |
+| Refresh button | calls `wardOverviewService.reload()` | `data-testid="refresh-btn"` |
+| Ward selector | `mat-select`, hardcoded: ICU, CARDIOLOGY, ONCOLOGY, NEUROLOGY | Routes to `/ward/:wardId`; `data-testid="ward-selector"` |
+| User avatar | circular 32px image or initials | Non-interactive; `data-testid="user-indicator"` |
 
-Toolbar background: `surface-container-lowest` (`#ffffff`) with `1px solid outline-variant` bottom border. Brand wordmark in `primary` (`#00342b`). Icons and text: `on-surface` (`#1a1c1c`).
+Background: `surface` (`#f9f9f9`), `1px solid outline-variant` bottom border. Brand wordmark in `primary` (`#00342b`).
 
-### 2.3 Sidenav (`AppSidenavComponent`)
+### 2.3 Record Sidebar (`RecordSidenavComponent`) — record layout only
 
-Background: `primary` (`#00342b`). Text: white at 87% opacity. Active item: `primary-fixed` (`#afefdd`) text on `rgba(175,239,221,0.15)` background (tonal overlay).
+Used on `/patients` and `/patients/:id`. 240px fixed left sidebar, hidden on mobile.
 
 ```
-┌────────────────────────────┐
-│  🏥 Ward Overview          │  active if /ward/*
-│  👤 Patients               │  active if /patients/*
-│  ⚙  Admin                  │  active if /admin
-│                            │
-│  ─────────────────         │
-│  v1.0.0-SNAPSHOT           │  caption, bottom-aligned
-└────────────────────────────┘
+┌──────────────────────────┐
+│ ⚕ CosmoLab               │  56px logo row; matches header height
+├──────────────────────────┤
+│  grid_view  Ward         │  routerLink="/ward/ICU"
+│  group      Patients     │  routerLink="/patients" ← active
+│  settings   Admin        │  routerLink="/admin"
+│                          │
+│  (flex spacer)           │
+├──────────────────────────┤
+│  [avatar] Dr. Andersson  │  user info, bottom-aligned
+│           Chief Resident │
+└──────────────────────────┘
 ```
 
-Nav items use `mat-nav-list` with `routerLinkActive="active-link"`.
+Background: `surface` (`#f9f9f9`), `1px solid outline-variant` right border.
 
-`data-testid` values: `"nav-ward"`, `"nav-patients"`, `"nav-admin"`.
+Active nav link: full-width row, `surface-container-low` background, `primary` text + icon, `font-weight: 600`. Inactive: `secondary` text + icon.
+
+Icons: `Material Symbols Outlined` at 24px (grid_view, group, settings).
+
+`data-testid` values: `"nav-ward"`, `"nav-patients"`, `"nav-admin"`, `"nav-logo"`.
 
 ---
 
@@ -201,14 +385,15 @@ Selector: `app-page-header`
 └─────────────────────────────────────────────────────────┘
 ```
 
-Inputs:
-- `@Input() icon: string` — Material icon name (e.g. `"local_hospital"`)
-- `@Input() title: string`
-- `@Input() subtitle?: string`
+```typescript
+readonly icon     = input.required<string>();   // Material icon name e.g. 'local_hospital'
+readonly title    = input.required<string>();
+readonly subtitle = input<string>();
+```
 
 Content projection slot: `[actions]` — right-aligned action buttons.
 
-Styling: white card, 16px padding, bottom border `1px solid divider`, `mat-icon` in `primary-500`.
+Styling: white card, 16px padding, bottom border `1px solid --nc-outline-variant`, `mat-icon` in primary.
 
 `data-testid="page-header"` on root element.
 
@@ -216,11 +401,12 @@ Styling: white card, 16px padding, bottom border `1px solid divider`, `mat-icon`
 
 Selector: `app-loading-spinner`
 
-Inputs:
-- `@Input() diameter: number = 40`
-- `@Input() overlay: boolean = false`
+```typescript
+readonly diameter = input<number>(40);
+readonly overlay  = input<boolean>(false);
+```
 
-When `overlay=true`: covers parent element with a translucent white mask and centres the spinner. Used during table loads and form submissions.
+When `overlay()` is true: covers parent element with a translucent white mask and centres the spinner.
 
 `data-testid="loading-spinner"`.
 
@@ -228,7 +414,9 @@ When `overlay=true`: covers parent element with a translucent white mask and cen
 
 Selector: `app-severity-badge`
 
-Input: `@Input() severity: 'MILD' | 'MODERATE' | 'SEVERE' | 'ROUTINE' | 'URGENT' | 'CRITICAL'`
+```typescript
+readonly severity = input.required<'MILD' | 'MODERATE' | 'SEVERE' | 'ROUTINE' | 'URGENT' | 'CRITICAL'>();
+```
 
 Renders a `mat-chip` (non-interactive, `[selectable]="false"`):
 
@@ -244,9 +432,12 @@ Renders a `mat-chip` (non-interactive, `[selectable]="false"`):
 
 Selector: `app-vital-signs-chart`
 
-Inputs:
-- `@Input() readings: VitalSignsResponse[]` — newest first (server returns in DESC order)
-- `@Input() compact: boolean = false` — compact mode for ward table; full mode for patient detail
+```typescript
+readonly readings = input<VitalSignsResponse[]>([]);  // newest first
+readonly compact  = input<boolean>(false);
+```
+
+Normal-range thresholds are imported from `shared/utils/vital-flags.util.ts` — not hardcoded in this component.
 
 **Compact mode** (ward table, 1 row per patient):
 
@@ -271,7 +462,7 @@ If `readings` is empty: renders an empty-state placeholder (see §4.4).
 
 ### 3.5 Status Chip (inline, not a separate component)
 
-Used in tables for `PatientStatus`. Rendered as a `mat-chip` with `[ngClass]` binding:
+Used in tables for `PatientStatus`. Rendered as a `mat-chip` with `[class]` binding:
 
 | Status | Background | Text |
 |---|---|---|
@@ -287,14 +478,32 @@ Used in tables for `PatientStatus`. Rendered as a `mat-chip` with `[ngClass]` bi
 
 ### 4.1 Loading State
 
-All pages and data-fetching components start in a loading state. Pattern:
+All pages and data-fetching components start in a loading state. Use `signal<boolean>` — no `BehaviorSubject`, no `async` pipe.
 
-```html
-<app-loading-spinner *ngIf="loading$ | async"></app-loading-spinner>
-<div *ngIf="!(loading$ | async)"><!-- content --></div>
+```typescript
+protected readonly loading = signal(false);
+
+protected load(): void {
+  this.loading.set(true);
+  this.service.getAll().pipe(
+    finalize(() => this.loading.set(false)),
+  ).subscribe(data => this.items.set(data));
+}
 ```
 
-Use `BehaviorSubject<boolean>` for `loading$`. Set `true` before HTTP call, `false` in both `next` and `error` callbacks (use `finalize` operator).
+```html
+@if (loading()) {
+  <app-loading-spinner [overlay]="true" />
+} @else {
+  <!-- content -->
+}
+```
+
+Prefer `toSignal()` when there is no need to imperatively trigger reloads:
+
+```typescript
+protected readonly patients = toSignal(this.patientService.getAll(), { initialValue: [] });
+```
 
 ### 4.2 Error State
 
@@ -332,11 +541,26 @@ All user feedback goes through `NotificationService` → `MatSnackBar`. Never re
 
 ### 4.5 Form Submission Pattern
 
-1. Disable the submit button while `loading$` is true
-2. Show `LoadingSpinnerComponent` (overlay) on the form
-3. On success: close dialog/panel, emit an event, show success snack bar, refresh parent data
-4. On error (4xx): show field-level errors from `ProblemDetail.properties.fieldErrors` or a generic snackbar for non-field errors
-5. On error (5xx): generic snackbar
+1. Disable the submit button while `loading()` is true
+2. Show `LoadingSpinnerComponent` overlay on the form
+3. On success: close dialog, show snackbar, parent refreshes
+4. On 4xx: apply `ProblemDetail.properties.fieldErrors` to form controls; generic snackbar for non-field errors
+5. On 5xx: generic snackbar
+
+```typescript
+protected readonly loading = signal(false);
+
+protected submit(): void {
+  if (this.form.invalid) return;
+  this.loading.set(true);
+  this.service.create(this.form.getRawValue()).pipe(
+    finalize(() => this.loading.set(false)),
+  ).subscribe({
+    next: result => { this.notifications.success('Saved'); this.dialogRef.close(result); },
+    error: err => this.handleFieldErrors(err),
+  });
+}
+```
 
 ### 4.6 Confirmation Dialogs
 
@@ -356,7 +580,6 @@ Used for destructive actions only (discharge patient / delete composition). Use 
 ## 5. Ward Overview Page
 
 Route: `/ward/:wardId`
-Module: `WardModule`
 Component: `WardOverviewComponent`
 API: `GET /api/v1/ward/{wardId}/overview`
 
@@ -381,12 +604,15 @@ API: `GET /api/v1/ward/{wardId}/overview`
 
 ### 5.2 Summary Chips
 
-Three `mat-chip` counters computed client-side from the API response:
-- **Patients with flags** — count of patients where `flags.length > 0`
-- **No vitals recorded** — count where `latestVitals === null`
-- **Active problems** — sum of `activeProblemCount` across all patients
+Three `mat-chip` counters derived with `computed()` from the overview signal — not calculated in the template:
 
-These are informational chips (not filterable). `data-testid="summary-chip-flagged"`, `"summary-chip-no-vitals"`, `"summary-chip-problems"`.
+```typescript
+protected readonly flaggedCount   = computed(() => this.overview()?.patients.filter(p => p.flags.length > 0).length ?? 0);
+protected readonly noVitalsCount  = computed(() => this.overview()?.patients.filter(p => !p.latestVitals).length ?? 0);
+protected readonly activeProblems = computed(() => this.overview()?.patients.reduce((s, p) => s + p.activeProblemCount, 0) ?? 0);
+```
+
+Informational only (not filterable). `data-testid="summary-chip-flagged"`, `"summary-chip-no-vitals"`, `"summary-chip-problems"`.
 
 ### 5.3 Table Specification
 
@@ -430,7 +656,6 @@ When the toolbar ward selector changes, the router navigates to `/ward/{newWardI
 ## 6. Patient List Page
 
 Route: `/patients`
-Module: `PatientsModule`
 Component: `PatientListComponent`
 API: `GET /api/v1/patients?ward=&status=&search=&page=&size=20`
 
@@ -471,7 +696,7 @@ Three controls in a single row:
 - Default: "All Statuses"
 - `data-testid="status-filter"`
 
-All three filters use `combineLatest` to compose one HTTP call per change.
+All three filters are `signal()`s. A `computed()` derives the query params object and triggers re-fetch via `toSignal()`.
 
 ### 6.3 Table Specification
 
@@ -504,7 +729,6 @@ Same loading / error / empty pattern as §4. Empty state hint: "No patients matc
 ## 7. Patient Detail Page
 
 Route: `/patients/:id`
-Module: `PatientsModule`
 Component: `PatientDetailComponent`
 APIs:
 - `GET /api/v1/patients/{id}` — demographics
@@ -754,7 +978,6 @@ Submit button: `data-testid="submit-btn"`. On success: close dialog, parent prob
 ## 9. Admin Page
 
 Route: `/admin`
-Module: `AdminModule`
 Component: `AdminComponent`
 
 ### 9.1 Layout
@@ -811,7 +1034,9 @@ Polls `GET /api/actuator/health` on component init. Displays a `mat-chip` per co
 
 ## 10. Angular Services — API Contract
 
-All services return `Observable<T>`. All HTTP errors are caught in the `ApiInterceptor` and surfaced as `MatSnackBar` notifications. Services do not handle errors themselves — they let errors propagate to the component for state management.
+All services return `Observable<T>`. HTTP errors are caught in `ApiInterceptor` and surfaced as `MatSnackBar` notifications. Services do not handle errors — they propagate so the component can update its error signal.
+
+Services are co-located with their feature (§14). Only services used across multiple features live in `core/`.
 
 ### 10.1 `WardOverviewService`
 
@@ -874,7 +1099,7 @@ createProblem(ehrId: string, body: ProblemRequest): Observable<ProblemResponse>
 
 ## 11. TypeScript Interface Definitions
 
-Place all interfaces in `cosmolab-frontend/src/app/core/models/`.
+All interfaces live in `src/app/core/models/`. Never declare interfaces inside component or service files.
 
 ```typescript
 // models/patient.model.ts
@@ -1122,71 +1347,98 @@ Use Angular CDK `BreakpointObserver` — not CSS-only media queries — for side
 
 ---
 
-## 14. File and Module Checklist
+## 14. File Structure Checklist
 
-Sprint 3 deliverables, in implementation order:
+Sprint 3 deliverables. No NgModule files — everything is standalone.
 
 ```
-cosmolab-frontend/
-├── package.json              # @angular/core@17, @angular/material@17, rxjs, ngx-charts
+frontend/
+├── package.json              # @angular/core@19, @angular/material@19, rxjs, ngx-charts
 ├── angular.json
 ├── tsconfig.json
-├── src/
-│   ├── styles.scss           # Material theme, global resets
-│   ├── index.html
-│   ├── main.ts
-│   └── app/
-│       ├── app.module.ts
-│       ├── app-routing.module.ts
-│       ├── app.component.ts  # mat-sidenav-container shell
-│       ├── app.component.html
-│       ├── core/
-│       │   ├── core.module.ts
-│       │   ├── guards/auth.guard.ts
-│       │   ├── interceptors/api.interceptor.ts
-│       │   ├── models/                           # All interfaces from §11
-│       │   └── services/
-│       │       ├── auth.service.ts
-│       │       ├── notification.service.ts
-│       │       ├── patient.service.ts
-│       │       ├── ehr.service.ts
-│       │       ├── vital-signs.service.ts
-│       │       ├── composition.service.ts
-│       │       ├── problem-list.service.ts
-│       │       └── ward-overview.service.ts
-│       ├── shared/
-│       │   ├── shared.module.ts
-│       │   └── components/
-│       │       ├── page-header/
-│       │       ├── loading-spinner/
-│       │       ├── severity-badge/
-│       │       └── vital-signs-chart/
-│       └── features/
-│           ├── ward/
-│           │   ├── ward.module.ts
-│           │   ├── ward-routing.module.ts
-│           │   └── ward-overview/
-│           │       ├── ward-overview.component.ts
-│           │       └── ward-overview.component.html
-│           ├── patients/
-│           │   ├── patients.module.ts
-│           │   ├── patients-routing.module.ts
-│           │   ├── patient-list/
-│           │   └── patient-detail/
-│           │       ├── patient-detail.component.ts
-│           │       ├── patient-detail.component.html
-│           │       ├── vitals-form/
-│           │       │   └── vitals-form.component.ts
-│           │       └── problem-form/
-│           │           └── problem-form.component.ts
-│           └── admin/
-│               ├── admin.module.ts
-│               ├── admin-routing.module.ts
-│               └── admin/
-│                   ├── admin.component.ts
-│                   └── admin.component.html
+├── proxy.conf.json           # /api → http://localhost:8080
+├── .gitignore
+└── src/
+    ├── styles.scss           # Material theme, CSS custom properties (--nc-*), global resets
+    ├── index.html
+    ├── main.ts               # bootstrapApplication(AppComponent, appConfig)
+    └── app/
+        ├── app.config.ts     # provideRouter, provideHttpClient, provideAnimationsAsync
+        ├── app.routes.ts     # loadComponent() lazy routes; canActivate: [authGuard]
+        ├── app.component.ts  # mat-sidenav-container shell
+        ├── app.component.html
+        ├── app.component.scss
+        │
+        ├── core/
+        │   ├── auth/
+        │   │   ├── auth.service.ts
+        │   │   └── auth.guard.ts             # CanActivateFn
+        │   ├── interceptors/
+        │   │   └── api.interceptor.ts        # HttpInterceptorFn
+        │   ├── notifications/
+        │   │   └── notification.service.ts
+        │   └── models/                       # All interfaces from §11
+        │       ├── patient.model.ts
+        │       ├── ehr.model.ts
+        │       ├── vital-signs.model.ts
+        │       ├── problem.model.ts
+        │       ├── composition.model.ts
+        │       ├── ward-overview.model.ts
+        │       └── paged-response.model.ts
+        │
+        ├── shared/
+        │   ├── utils/
+        │   │   └── vital-flags.util.ts       # Pure functions for normal-range logic
+        │   ├── page-header/
+        │   │   ├── page-header.component.ts
+        │   │   ├── page-header.component.html
+        │   │   └── page-header.component.scss
+        │   ├── loading-spinner/
+        │   │   ├── loading-spinner.component.ts
+        │   │   └── loading-spinner.component.scss
+        │   ├── severity-badge/
+        │   │   ├── severity-badge.component.ts
+        │   │   └── severity-badge.component.scss
+        │   └── vital-signs-chart/
+        │       ├── vital-signs-chart.component.ts
+        │       ├── vital-signs-chart.component.html
+        │       └── vital-signs-chart.component.scss
+        │
+        └── features/
+            ├── ward/
+            │   ├── ward-overview.service.ts
+            │   └── ward-overview/
+            │       ├── ward-overview.component.ts
+            │       ├── ward-overview.component.html
+            │       └── ward-overview.component.scss
+            │
+            ├── patients/
+            │   ├── patient.service.ts
+            │   ├── patient-list/
+            │   │   ├── patient-list.component.ts
+            │   │   ├── patient-list.component.html
+            │   │   └── patient-list.component.scss
+            │   └── patient-detail/
+            │       ├── ehr.service.ts
+            │       ├── vital-signs.service.ts
+            │       ├── composition.service.ts
+            │       ├── problem-list.service.ts
+            │       ├── patient-detail.component.ts
+            │       ├── patient-detail.component.html
+            │       ├── patient-detail.component.scss
+            │       ├── vitals-form/
+            │       │   ├── vitals-form.component.ts
+            │       │   └── vitals-form.component.html
+            │       └── problem-form/
+            │           ├── problem-form.component.ts
+            │           └── problem-form.component.html
+            │
+            └── admin/
+                ├── admin.component.ts
+                ├── admin.component.html
+                └── admin.component.scss
 ```
 
 ---
 
-*Last updated: Sprint 3 start — 2026-05-15. Update §12 inventory whenever a new `data-testid` is added.*
+*Last updated: Sprint 3 — 2026-05-16. Update §12 inventory whenever a new `data-testid` is added.*

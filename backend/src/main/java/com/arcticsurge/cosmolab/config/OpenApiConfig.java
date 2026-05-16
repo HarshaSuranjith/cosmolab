@@ -30,7 +30,7 @@ public class OpenApiConfig {
                                 .name("Harsha Amarasiri")
                                 .email("harshasuranjith@gmail.com")))
                 .servers(List.of(
-                        new Server().url("http://localhost:8080").description("Local — WildFly 30")))
+                        new Server().url("http://localhost:8080").description("Dev — JBoss EAP 8.0")))
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth", new SecurityScheme()
                                 .type(SecurityScheme.Type.HTTP)

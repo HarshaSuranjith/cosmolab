@@ -10,7 +10,7 @@
 > - [`docs/domain-aggregates.md`](docs/domain-aggregates.md) — per-aggregate field reference, lifecycle rules, enums, repository contracts, and invariants
 > - [`docs/cosmolab-architecture.md`](docs/cosmolab-architecture.md) — container diagram, full backend package tree, complete REST API surface, RabbitMQ topology, Flyway sequence
 > - [`docs/backend-java.md`](docs/backend-java.md) — Spring Boot WAR on WildFly conventions, JPA/MSSQL patterns, RabbitMQ integration, validation, error handling
-> - [`docs/frontend-angular.md`](docs/frontend-angular.md) — NgModules structure, routing, mock JWT auth pattern, component conventions, data-testid inventory
+> - [`docs/frontend-angular.md`](docs/frontend-angular.md) — standalone components, signals, functional guards/interceptors, feature-based structure, mock JWT auth, data-testid inventory
 > - [`docs/frontend-ui-spec.md`](docs/frontend-ui-spec.md) — **Sprint 3 source of truth**: design system, colour tokens, page wireframes, component contracts, form specs, data bindings, full data-testid inventory
 > - [`docs/devops-infra.md`](docs/devops-infra.md) — Docker Compose services, WildFly tuning, JMX, JFR, MSSQL container config, Nginx
 > - [`docs/jboss-deployment.md`](docs/jboss-deployment.md) — WAR packaging, classloading conflicts resolved, environment config, known limitations and improvement areas
@@ -47,7 +47,7 @@ The clinical domain was chosen deliberately. It is write-heavy (notes created co
 | Containerisation and Docker | `devops/docker-compose.yml` + multi-stage Dockerfiles |
 | CI/CD pipeline experience | `devops/jenkins/Jenkinsfile` — declarative pipeline, 7 stages |
 | Observability and monitoring | Grafana dashboards, Prometheus, Loki logs, Tempo traces |
-| Angular frontend | 4-page NgModules app with routing, guards, lazy loading |
+| Angular frontend | 4-page standalone Angular 19 app with routing, guards, lazy loading |
 | MS SQL Server | Flyway-versioned schema, MSSQL-specific JPA config, query tuning |
 | End-to-end testing | Playwright suite — Page Object Model, Chromium + Firefox, CI-integrated |
 
@@ -59,7 +59,7 @@ The clinical domain was chosen deliberately. It is write-heavy (notes created co
 
 | Layer | Technology | Version | Reason |
 |---|---|---|---|
-| Frontend | Angular (NgModules) | 17 | Enterprise pattern; closer to legacy COSMIC than standalone components |
+| Frontend | Angular (standalone) | 19 | Modern standalone component model; signals, functional guards/interceptors, `loadComponent()` lazy loading |
 | Backend | Spring Boot WAR | 3.2 / JDK 17 | COSMIC is Spring-based; WAR exercises the real JBoss deployment path |
 | App server | WildFly | 30 | Open-source JBoss; identical runtime to COSMIC production |
 | Database | MS SQL Server | 2022 | `mcr.microsoft.com/mssql/server:2022-latest` (free dev license) |
@@ -167,33 +167,37 @@ com.cosmolab
     └── dto/                             # Request/Response DTOs + PagedResponse<T> + WardOverviewResponse
 ```
 
-### 3.4 Frontend module structure (NgModules)
+### 3.4 Frontend structure (standalone components, Angular 19)
 
-`CoreModule` is imported once in `AppModule` and contains singleton services and interceptors. `SharedModule` is imported by every feature module and contains reusable components. Feature modules are lazy-loaded via the Angular router. See [`docs/frontend-angular.md`](docs/frontend-angular.md) for routing code, auth pattern, component conventions, and the full `data-testid` attribute inventory.
+All components are **standalone** — no NgModules. Bootstrap via `bootstrapApplication()`. Services are `providedIn: 'root'`. Lazy loading uses `loadComponent()`. State is managed with signals. See [`docs/frontend-angular.md`](docs/frontend-angular.md) for routing code, auth pattern, component conventions, and the full `data-testid` attribute inventory.
 > - [`docs/frontend-ui-spec.md`](docs/frontend-ui-spec.md) — **Sprint 3 source of truth**: design system, colour tokens, page wireframes, component contracts, form specs, data bindings, full data-testid inventory
 
 ```
 src/app/
-├── app.module.ts
-├── app-routing.module.ts            # default → /ward/ICU; lazy loads all feature modules
+├── main.ts                          # bootstrapApplication(AppComponent, appConfig)
+├── app.config.ts                    # providers: router (withHashLocation), httpClient, animations
+├── app.routes.ts                    # loadComponent() lazy routes; canActivate: [authGuard]
+├── app.component.ts                 # root; <router-outlet>
 │
-├── core/
-│   ├── guards/auth.guard.ts         # Redirects if no token in sessionStorage
-│   ├── interceptors/api.interceptor.ts  # Injects Bearer token; maps API errors to notifications
-│   └── services/
-│       ├── auth.service.ts          # Stores/retrieves mock JWT
-│       └── notification.service.ts  # Global snackbar messages
+├── core/                            # singleton services (no module — all providedIn: 'root')
+│   ├── auth/
+│   │   ├── auth.service.ts          # mock JWT in sessionStorage
+│   │   └── auth.guard.ts            # CanActivateFn (functional)
+│   ├── interceptors/
+│   │   └── api.interceptor.ts       # HttpInterceptorFn — adds Bearer token; maps API errors
+│   └── notifications/
+│       └── notification.service.ts  # MatSnackBar wrapper
 │
-├── shared/components/
+├── shared/                          # standalone components; imported per-use
 │   ├── page-header/
 │   ├── loading-spinner/
 │   ├── severity-badge/              # MILD/MODERATE/SEVERE + ROUTINE/URGENT/CRITICAL chips
-│   └── vital-signs-chart/           # Sparkline; cells amber/red outside normal range
+│   └── vital-signs-chart/           # sparkline; cells amber/red outside normal range
 │
 └── features/
     ├── ward/                        # Route: /ward/:wardId — WardOverviewComponent (primary view)
     ├── patients/                    # Routes: /patients, /patients/:id
-    │   ├── patient-list/            # Paginated table, search, ward/status filter
+    │   ├── patient-list/            # paginated table, search (debounced), ward/status filter
     │   └── patient-detail/          # mat-tab-group: Overview | Vitals | Problems | Compositions
     └── admin/                       # Route: /admin — links to Grafana, RabbitMQ UI, Actuator
 ```
@@ -637,7 +641,7 @@ cosmolab/
 │   ├── cosmolab-architecture.md        # Container diagram, full package tree, REST API, RabbitMQ topology
 │   ├── clinical-domain.md              # openEHR entities, interview talking points
 │   ├── backend-java.md                 # Spring Boot WAR, JPA, RabbitMQ, validation conventions
-│   ├── frontend-angular.md             # NgModules, routing, auth, component conventions, data-testid
+│   ├── frontend-angular.md             # standalone components, signals, routing, auth, component conventions, data-testid
 │   ├── devops-infra.md                 # Docker Compose, WildFly, JMX, JFR, MSSQL, Nginx
 │   ├── sprint-plan.md                  # Sprint-by-sprint tasks and exit criteria
 │   ├── testing-e2e.md                  # Playwright config, Page Object Model, test scenarios
