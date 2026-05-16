@@ -5,12 +5,15 @@
 > Update it as each phase completes.
 >
 > **Related documents** — domain-specific detail lives in `docs/`; this file is the entry point.
-> - [`docs/clinical-domain.md`](docs/clinical-domain.md) — openEHR containment hierarchy, EHR/Composition/VitalSigns/ProblemListEntry entities, interview talking points
+> - [`docs/clinical-domain.md`](docs/clinical-domain.md) — openEHR containment hierarchy, EHR/Composition/VitalSigns/ProblemDiagnosis entities, interview talking points
+> - [`docs/domain-er-diagram.md`](docs/domain-er-diagram.md) — Mermaid ER diagram, openEHR containment hierarchy, indexes, and CHECK constraints
+> - [`docs/domain-aggregates.md`](docs/domain-aggregates.md) — per-aggregate field reference, lifecycle rules, enums, repository contracts, and invariants
 > - [`docs/cosmolab-architecture.md`](docs/cosmolab-architecture.md) — container diagram, full backend package tree, complete REST API surface, RabbitMQ topology, Flyway sequence
 > - [`docs/backend-java.md`](docs/backend-java.md) — Spring Boot WAR on WildFly conventions, JPA/MSSQL patterns, RabbitMQ integration, validation, error handling
 > - [`docs/frontend-angular.md`](docs/frontend-angular.md) — NgModules structure, routing, mock JWT auth pattern, component conventions, data-testid inventory
 > - [`docs/frontend-ui-spec.md`](docs/frontend-ui-spec.md) — **Sprint 3 source of truth**: design system, colour tokens, page wireframes, component contracts, form specs, data bindings, full data-testid inventory
 > - [`docs/devops-infra.md`](docs/devops-infra.md) — Docker Compose services, WildFly tuning, JMX, JFR, MSSQL container config, Nginx
+> - [`docs/jboss-deployment.md`](docs/jboss-deployment.md) — WAR packaging, classloading conflicts resolved, environment config, known limitations and improvement areas
 > - [`docs/sprint-plan.md`](docs/sprint-plan.md) — sprint-by-sprint tasks and exit criteria
 > - [`docs/testing-e2e.md`](docs/testing-e2e.md) — Playwright config, Page Object Model rules, test scenarios, CI integration
 > - [`docs/testing-performance.md`](docs/testing-performance.md) — JMeter, Gatling, k6 scripts, profiling workflow, tuning targets, results table
@@ -141,13 +144,13 @@ com.cosmolab
 │   ├── ehr/         EhrRecord, EhrRepository (port)
 │   ├── composition/ Composition, CompositionType, CompositionStatus, repository
 │   ├── observation/ VitalSigns, repository
-│   └── evaluation/  ProblemListEntry, ProblemStatus, Severity (MILD|MODERATE|SEVERE), repository
+│   └── evaluation/  ProblemDiagnosis, ProblemStatus, Severity (MILD|MODERATE|SEVERE), repository
 │
 ├── application/                   # use-case orchestration; @Service, @Transactional
 │   ├── ehr/         EhrService
 │   ├── composition/ CompositionService
 │   ├── observation/ VitalSignsService
-│   ├── evaluation/  ProblemListService
+│   ├── evaluation/  ProblemDiagnosisService
 │   └── ward/        WardOverviewService  # aggregation query — primary load test target
 │
 ├── infrastructure/
@@ -159,7 +162,7 @@ com.cosmolab
 │
 └── interfaces/rest/
     ├── EhrController, CompositionController, VitalSignsController
-    ├── ProblemListController, WardOverviewController
+    ├── ProblemDiagnosisController, WardOverviewController
     ├── GlobalExceptionHandler.java      # @RestControllerAdvice, ProblemDetail (RFC 7807)
     └── dto/                             # Request/Response DTOs + PagedResponse<T> + WardOverviewResponse
 ```

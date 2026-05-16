@@ -1,6 +1,6 @@
 package com.arcticsurge.cosmolab.interfaces.rest.mapper;
 
-import com.arcticsurge.cosmolab.domain.evaluation.ProblemListEntry;
+import com.arcticsurge.cosmolab.domain.evaluation.ProblemDiagnosis;
 import com.arcticsurge.cosmolab.domain.evaluation.ProblemStatus;
 import com.arcticsurge.cosmolab.domain.evaluation.Severity;
 import com.arcticsurge.cosmolab.interfaces.rest.dto.ProblemRequest;
@@ -20,7 +20,7 @@ class ProblemMapperTest {
 
     @Test
     void merge_copiesDisplayName() {
-        ProblemListEntry existing = existingEntry();
+        ProblemDiagnosis existing = existingEntry();
 
         mapper.merge(updateRequest("Updated diagnosis", Severity.SEVERE), existing);
 
@@ -29,7 +29,7 @@ class ProblemMapperTest {
 
     @Test
     void merge_copiesSeverity() {
-        ProblemListEntry existing = existingEntry();
+        ProblemDiagnosis existing = existingEntry();
 
         mapper.merge(updateRequest("Pneumonia", Severity.SEVERE), existing);
 
@@ -38,7 +38,7 @@ class ProblemMapperTest {
 
     @Test
     void merge_doesNotOverwriteIcd10Code() {
-        ProblemListEntry existing = existingEntry();
+        ProblemDiagnosis existing = existingEntry();
 
         mapper.merge(new ProblemRequest(UUID.randomUUID(), "Z99.9", "X", Severity.MILD,
                 UUID.randomUUID(), LocalDate.now()), existing);
@@ -48,7 +48,7 @@ class ProblemMapperTest {
 
     @Test
     void merge_doesNotOverwriteEhrId() {
-        ProblemListEntry existing = existingEntry();
+        ProblemDiagnosis existing = existingEntry();
         UUID originalEhrId = existing.getEhrId();
 
         mapper.merge(updateRequest("X", Severity.MILD), existing);
@@ -58,7 +58,7 @@ class ProblemMapperTest {
 
     @Test
     void merge_doesNotOverwriteCompositionId() {
-        ProblemListEntry existing = existingEntry();
+        ProblemDiagnosis existing = existingEntry();
         UUID originalCompositionId = existing.getCompositionId();
 
         mapper.merge(updateRequest("X", Severity.MILD), existing);
@@ -68,7 +68,7 @@ class ProblemMapperTest {
 
     @Test
     void merge_doesNotOverwriteRecordedBy() {
-        ProblemListEntry existing = existingEntry();
+        ProblemDiagnosis existing = existingEntry();
         UUID originalRecordedBy = existing.getRecordedBy();
 
         mapper.merge(updateRequest("X", Severity.MILD), existing);
@@ -78,7 +78,7 @@ class ProblemMapperTest {
 
     @Test
     void merge_doesNotOverwriteOnsetDate() {
-        ProblemListEntry existing = existingEntry();
+        ProblemDiagnosis existing = existingEntry();
         LocalDate originalOnsetDate = existing.getOnsetDate();
 
         mapper.merge(updateRequest("X", Severity.MILD), existing);
@@ -88,7 +88,7 @@ class ProblemMapperTest {
 
     @Test
     void merge_doesNotOverwriteStatus() {
-        ProblemListEntry existing = existingEntry();
+        ProblemDiagnosis existing = existingEntry();
 
         mapper.merge(updateRequest("X", Severity.MILD), existing);
 
@@ -97,7 +97,7 @@ class ProblemMapperTest {
 
     @Test
     void merge_doesNotOverwriteRecordedAt() {
-        ProblemListEntry existing = existingEntry();
+        ProblemDiagnosis existing = existingEntry();
         Instant originalRecordedAt = existing.getRecordedAt();
 
         mapper.merge(updateRequest("X", Severity.MILD), existing);
@@ -112,8 +112,8 @@ class ProblemMapperTest {
                 UUID.randomUUID(), LocalDate.of(2024, 5, 1));
     }
 
-    private ProblemListEntry existingEntry() {
-        ProblemListEntry e = new ProblemListEntry();
+    private ProblemDiagnosis existingEntry() {
+        ProblemDiagnosis e = new ProblemDiagnosis();
         e.setEhrId(UUID.randomUUID());
         e.setCompositionId(UUID.randomUUID());
         e.setIcd10Code("J18.9");

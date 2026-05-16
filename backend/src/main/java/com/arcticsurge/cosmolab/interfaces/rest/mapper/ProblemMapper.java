@@ -1,6 +1,6 @@
 package com.arcticsurge.cosmolab.interfaces.rest.mapper;
 
-import com.arcticsurge.cosmolab.domain.evaluation.ProblemListEntry;
+import com.arcticsurge.cosmolab.domain.evaluation.ProblemDiagnosis;
 import com.arcticsurge.cosmolab.interfaces.rest.dto.ProblemRequest;
 import com.arcticsurge.cosmolab.interfaces.rest.dto.ProblemResponse;
 import org.mapstruct.BeanMapping;
@@ -19,7 +19,7 @@ public interface ProblemMapper {
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "resolvedDate", ignore = true)
     @Mapping(target = "recordedAt", ignore = true)
-    ProblemListEntry toEntity(ProblemRequest request, UUID ehrId);
+    ProblemDiagnosis toEntity(ProblemRequest request, UUID ehrId);
 
     // Updates only displayName and severity — all identity/lifecycle fields are immutable
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -32,7 +32,7 @@ public interface ProblemMapper {
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "resolvedDate", ignore = true)
     @Mapping(target = "recordedAt", ignore = true)
-    void merge(ProblemRequest source, @MappingTarget ProblemListEntry target);
+    void merge(ProblemRequest source, @MappingTarget ProblemDiagnosis target);
 
-    ProblemResponse toResponse(ProblemListEntry entry);
+    ProblemResponse toResponse(ProblemDiagnosis entry);
 }

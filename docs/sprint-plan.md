@@ -34,7 +34,7 @@ alwaysApply: false
 - `webapp/WEB-INF/jboss-deployment-structure.xml`
 - `application.yml` — datasource, rabbitmq, flyway, actuator, OTLP
 - `V1__patients_and_ehr.sql` through `V6__seed_clinical_data.sql`
-- Domain entities: `Patient`, `EhrRecord`, `Composition`, `VitalSigns`, `ProblemListEntry`
+- Domain entities: `Patient`, `EhrRecord`, `Composition`, `VitalSigns`, `ProblemDiagnosis`
 - Domain repository interfaces + Spring Data JPA implementations
 
 **Exit**: `mvn clean install` succeeds. All containers healthy. Flyway V1-V6 applied. `/actuator/health` UP.
@@ -56,12 +56,12 @@ alwaysApply: false
 ## Sprint 2 — Backend API + RabbitMQ Events
 
 **Files to create**:
-- Services: `EhrService`, `CompositionService`, `VitalSignsService`, `ProblemListService`, `WardOverviewService`
+- Services: `EhrService`, `CompositionService`, `VitalSignsService`, `ProblemDiagnosisService`, `WardOverviewService`
 - Controllers: one per resource + `GlobalExceptionHandler`
 - `RabbitMQConfig.java` — exchanges, quorum queue, binding
 - `ClinicalEvent.java` record + `ClinicalEventPublisher.java` + `AuditEventConsumer.java`
 - DTOs: request/response per resource + `PagedResponse<T>` + `WardOverviewResponse`
-- Tests: `EhrControllerTest`, `VitalSignsControllerTest`, `ProblemListControllerTest`,
+- Tests: `EhrControllerTest`, `VitalSignsControllerTest`, `ProblemDiagnosisControllerTest`,
   `WardOverviewControllerTest`, `CompositionControllerTest`
 
 **Already completed** (moved forward from Sprint 1 extras): all services, controllers, DTOs,

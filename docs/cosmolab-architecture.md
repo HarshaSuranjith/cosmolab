@@ -39,13 +39,13 @@ com.arcticsurge.cosmolab
 │   ├── ehr/         EhrRecord, EhrRepository (port)
 │   ├── composition/ Composition, CompositionType, CompositionStatus, repository
 │   ├── observation/ VitalSigns, repository
-│   ├── evaluation/  ProblemListEntry, ProblemStatus, Severity, repository
+│   ├── evaluation/  ProblemDiagnosis, ProblemStatus, Severity, repository
 │   └── patient/     Patient, PatientStatus, Gender, repository
 ├── application/                    # use-case orchestration; @Service, @Transactional
 │   ├── ehr/         EhrService, EhrNotFoundException
 │   ├── composition/ CompositionService, CompositionNotFoundException
 │   ├── observation/ VitalSignsService
-│   ├── evaluation/  ProblemListService, ProblemListEntryNotFoundException
+│   ├── evaluation/  ProblemDiagnosisService, ProblemDiagnosisNotFoundException
 │   ├── patient/     PatientService, PatientNotFoundException
 │   └── ward/        WardOverviewService (aggregation query — no new entity)
 ├── infrastructure/
@@ -53,7 +53,7 @@ com.arcticsurge.cosmolab
 │   └── messaging/   ClinicalEvent record, ClinicalEventPublisher, AuditEventConsumer
 └── interfaces/rest/
     ├── EhrController, CompositionController, VitalSignsController
-    ├── ProblemListController, WardOverviewController, PatientController
+    ├── ProblemDiagnosisController, WardOverviewController, PatientController
     ├── GlobalExceptionHandler   # RFC 7807 ProblemDetail; all *NotFoundException → 404
     └── dto/                     # Request/Response records + PagedResponse<T> + WardOverviewResponse
 ```

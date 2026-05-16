@@ -2,7 +2,7 @@ package com.arcticsurge.cosmolab.domain;
 
 import com.arcticsurge.cosmolab.application.composition.CompositionNotFoundException;
 import com.arcticsurge.cosmolab.application.ehr.EhrNotFoundException;
-import com.arcticsurge.cosmolab.application.evaluation.ProblemListEntryNotFoundException;
+import com.arcticsurge.cosmolab.application.evaluation.ProblemDiagnosisNotFoundException;
 import com.arcticsurge.cosmolab.application.patient.PatientNotFoundException;
 import org.junit.jupiter.api.Test;
 
@@ -30,8 +30,8 @@ class EntityNotFoundExceptionHierarchyTest {
     }
 
     @Test
-    void problemListEntryNotFoundException_extendsEntityNotFoundException() {
-        assertThat(new ProblemListEntryNotFoundException(ID)).isInstanceOf(EntityNotFoundException.class);
+    void problemDiagnosisNotFoundException_extendsEntityNotFoundException() {
+        assertThat(new ProblemDiagnosisNotFoundException(ID)).isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
@@ -53,8 +53,8 @@ class EntityNotFoundExceptionHierarchyTest {
     }
 
     @Test
-    void problemListEntryNotFoundException_messageContainsId() {
-        assertThat(new ProblemListEntryNotFoundException(ID).getMessage())
-                .isEqualTo("Problem list entry 00000000-0000-0000-0000-000000000001 not found");
+    void problemDiagnosisNotFoundException_messageContainsId() {
+        assertThat(new ProblemDiagnosisNotFoundException(ID).getMessage())
+                .isEqualTo("Problem diagnosis 00000000-0000-0000-0000-000000000001 not found");
     }
 }

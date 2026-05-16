@@ -15,7 +15,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ProblemListEntry extends BaseEntity {
+public class ProblemDiagnosis extends BaseEntity {
 
     @Column(name = "composition_id", columnDefinition = "UNIQUEIDENTIFIER", nullable = false)
     private UUID compositionId;

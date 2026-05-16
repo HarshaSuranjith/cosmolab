@@ -1,6 +1,6 @@
 package com.arcticsurge.cosmolab.interfaces.rest;
 
-import com.arcticsurge.cosmolab.application.evaluation.ProblemListService;
+import com.arcticsurge.cosmolab.application.evaluation.ProblemDiagnosisService;
 import com.arcticsurge.cosmolab.domain.evaluation.ProblemStatus;
 import com.arcticsurge.cosmolab.interfaces.rest.dto.ProblemRequest;
 import com.arcticsurge.cosmolab.interfaces.rest.dto.ProblemResponse;
@@ -23,10 +23,10 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/ehr/{ehrId}/problems")
 @RequiredArgsConstructor
-@Tag(name = "Problem List", description = "Problem list entries — openEHR EVALUATION archetype. ICD-10 coded diagnoses with severity and status lifecycle (ACTIVE → RESOLVED / REFUTED).")
-public class ProblemListController {
+@Tag(name = "Problem Diagnosis", description = "Problem/Diagnosis entries — openEHR EVALUATION archetype. ICD-10 coded diagnoses with severity and status lifecycle (ACTIVE → RESOLVED / REFUTED).")
+public class ProblemDiagnosisController {
 
-    private final ProblemListService problemListService;
+    private final ProblemDiagnosisService problemDiagnosisService;
     private final ProblemMapper problemMapper;
 
     @Operation(summary = "Add a problem to the patient's problem list")
@@ -39,7 +39,7 @@ public class ProblemListController {
     @ResponseStatus(HttpStatus.CREATED)
     ProblemResponse create(@PathVariable UUID ehrId, @Valid @RequestBody ProblemRequest request) {
         return problemMapper.toResponse(
-                problemListService.create(problemMapper.toEntity(request, ehrId)));
+                problemDiagnosisService.create(problemMapper.toEntity(request, ehrId)));
     }
 
     @Operation(summary = "List problems for an EHR",
@@ -52,7 +52,7 @@ public class ProblemListController {
             @PathVariable UUID ehrId,
             @Parameter(description = "Filter by problem status — omit to return all statuses")
             @RequestParam(required = false) ProblemStatus status) {
-        return problemListService.listByEhr(ehrId, status).stream()
+        return problemDiagnosisService.listByEhr(ehrId, status).stream()
                 .map(problemMapper::toResponse).toList();
     }
 
@@ -62,7 +62,7 @@ public class ProblemListController {
                  content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     @GetMapping("/{id}")
     ProblemResponse getById(@PathVariable UUID ehrId, @PathVariable UUID id) {
-        return problemMapper.toResponse(problemListService.getById(id));
+        return problemMapper.toResponse(problemDiagnosisService.getById(id));
     }
 
     @Operation(summary = "Update a problem entry",
@@ -75,6 +75,6 @@ public class ProblemListController {
     @PutMapping("/{id}")
     ProblemResponse update(@PathVariable UUID ehrId, @PathVariable UUID id,
                            @Valid @RequestBody ProblemRequest request) {
-        return problemMapper.toResponse(problemListService.update(id, request));
+        return problemMapper.toResponse(problemDiagnosisService.update(id, request));
     }
 }

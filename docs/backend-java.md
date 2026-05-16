@@ -184,7 +184,7 @@ Optional.ofNullable(v.getSystolicBp()).filter(bp -> bp > 140).ifPresent(bp -> fl
 
 **Typed exceptions** — never throw bare `RuntimeException` from service layer. Each domain concept
 has its own exception (`PatientNotFoundException`, `EhrNotFoundException`,
-`CompositionNotFoundException`, `ProblemListEntryNotFoundException`) — all registered in
+`CompositionNotFoundException`, `ProblemDiagnosisNotFoundException`) — all registered in
 `GlobalExceptionHandler` and mapped to 404.
 
 **Return `List.copyOf()`** from methods that build flag lists — returns an unmodifiable view,

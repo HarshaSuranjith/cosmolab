@@ -15,75 +15,93 @@ alwaysApply: false
 
 ## 1. Design System
 
-### 1.1 Colour Palette
+### 1.1 Colour Palette — Nordic Clinical
 
-CosmoLab uses a clinical dark-primary theme — deep teal primary on a light background, with semantic colours for clinical status indicators. All tokens map to Angular Material theming variables.
+CosmoLab uses the **Nordic Clinical** design system — a restricted, purposeful palette rooted in Nordic Minimalism. Deep forest green primary on arctic white surfaces, with semantic colours tuned for clinical safety. All CSS custom properties are declared in `styles.scss` under `:root` prefixed `--nc-*`.
 
-| Token | Hex | Usage |
-|---|---|---|
-| `primary-900` | `#004D40` | Sidenav background, active nav item |
-| `primary-700` | `#00695C` | Primary toolbar, primary buttons |
-| `primary-500` | `#009688` | Focused inputs, links, active chips |
-| `primary-100` | `#B2DFDB` | Selected row highlight, subtle backgrounds |
-| `primary-50` | `#E0F2F1` | Hover state on table rows |
-| `accent-600` | `#F57C00` | Amber — warning vital flags (outside normal range) |
-| `accent-900` | `#E65100` | Red-amber — critical vital flags |
-| `warn-700` | `#C62828` | Error states, validation messages, SEVERE badge |
-| `surface` | `#FFFFFF` | Card and table backgrounds |
-| `background` | `#F5F5F5` | Page background |
-| `on-surface` | `#212121` | Primary text |
-| `on-surface-medium` | `#616161` | Secondary text (labels, metadata) |
-| `on-surface-disabled` | `#9E9E9E` | Placeholder, disabled |
-| `divider` | `#E0E0E0` | Table row separators, card outlines |
-| `status-active` | `#2E7D32` | ACTIVE patient/problem status |
-| `status-discharged` | `#5C6BC0` | DISCHARGED status chip |
-| `status-transferred` | `#F57F17` | TRANSFERRED status chip |
-| `severity-mild` | `#388E3C` | MILD severity badge |
-| `severity-moderate` | `#F9A825` | MODERATE severity badge |
-| `severity-severe` | `#C62828` | SEVERE severity badge |
-
-### 1.2 Typography
-
-Angular Material Typography scale using `Roboto` (loaded from Google Fonts).
-
-| Role | Material level | Size / Weight | Usage |
+| Token | CSS var | Hex | Usage |
 |---|---|---|---|
-| Page title | `headline-5` | 24px / 400 | `PageHeaderComponent` title |
-| Section heading | `subtitle-1` | 16px / 500 | Card titles, tab labels |
-| Body | `body-1` | 14px / 400 | Table cell text, form labels |
-| Caption | `caption` | 12px / 400 | Timestamps, secondary metadata |
-| Overline | `overline` | 10px / 500 uppercase | Column headers in dense tables |
-| Button | `button` | 14px / 500 uppercase | All `mat-button` and `mat-raised-button` |
+| `primary` | `--nc-primary` | `#00342b` | Brand, primary buttons, active sidenav, clickable text |
+| `primary-container` | `--nc-primary-container` | `#004d40` | Sidenav background |
+| `on-primary` | `--nc-on-primary` | `#ffffff` | Text/icons on primary backgrounds |
+| `primary-fixed` | `--nc-primary-fixed` | `#afefdd` | Active nav item text; inverse-primary |
+| `surface` | `--nc-surface` | `#f9f9f9` | Page background |
+| `surface-container-lowest` | `--nc-surface-lowest` | `#ffffff` | Card and table backgrounds |
+| `surface-container-low` | `--nc-surface-low` | `#f3f3f3` | Row hover state |
+| `surface-container` | `--nc-surface-container` | `#eeeeee` | Table header background |
+| `on-surface` | `--nc-on-surface` | `#1a1c1c` | Primary text |
+| `on-surface-variant` | `--nc-on-surface-variant` | `#3f4945` | Secondary text (labels, metadata) |
+| `outline` | `--nc-outline` | `#707975` | Muted text, disabled |
+| `outline-variant` | `--nc-outline-variant` | `#bfc9c4` | Table row separators, card borders, toolbar border |
+| `error` | `--nc-error` | `#ba1a1a` | Error states, validation messages, SEVERE badge, critical vitals |
+| `error-container` | `--nc-error-container` | `#ffdad6` | Critical row background |
+| `secondary-container` | `--nc-secondary-container` | `#e1dfdf` | Gender chip, initials avatar |
+| `status-active` | — | `#2e7d32` / bg `#e8f5e9` | ACTIVE chip |
+| `status-discharged` | — | `#3949ab` / bg `#e8eaf6` | DISCHARGED chip |
+| `status-transferred` | — | `#e65100` / bg `#fff3e0` | TRANSFERRED chip |
+| `severity-mild` | — | `#388e3c` | MILD severity badge |
+| `severity-moderate` | — | `#f9a825` | MODERATE badge; amber vital flag |
+| `severity-severe` | — | `#ba1a1a` | SEVERE badge; red vital flag |
 
-> Set `font-size: 14px` as the body root. Dense clinical tables use `mat-table` with `[class.mat-table-dense]` styling (`line-height: 1.4`, `padding: 6px 12px`).
+**Depth / elevation**: No drop shadows. Depth is communicated through tonal layering and `1px solid outline-variant` borders on cards/tables.
+
+### 1.2 Typography — Inter
+
+All text uses **Inter** (loaded from Google Fonts: `wght@400;500;600;700`). Inter's tabular numeral feature is essential for comparing clinical values in tables.
+
+| Role | Size / Weight | Line height | Letter spacing | Usage |
+|---|---|---|---|---|
+| `headline-lg` | 28px / 600 | 36px | −0.02em | Page titles |
+| `headline-md` | 20px / 600 | 28px | −0.01em | Section headings |
+| `headline-sm` | 16px / 600 | 24px | — | Card titles, tab labels |
+| `body-md` | 14px / 400 | 20px | — | Table cell text, form labels (default) |
+| `body-sm` | 13px / 400 | 18px | — | Secondary descriptions |
+| `label-md` | 12px / 600 | 16px | 0.05em | Column headers, button labels, status chips |
+| `label-sm` | 11px / 500 | 14px | — | Timestamps, metadata captions |
+| `data-mono` | 13px / 500 | 18px | — | Vital values, IDs, personnummer (tabular nums) |
+
+> Set `font-size: 14px` as the body root. Dense clinical tables use `mat-table` with `[class.mat-table-dense]` styling (`row height: 36px`, `padding: 6px 12px`).
 
 ### 1.3 Spacing Scale
 
-Use an 8px base grid throughout.
+8px base grid. Clinical density: internal padding is reduced by 4px vs. standard enterprise patterns.
 
 | Token | Value | Usage |
 |---|---|---|
-| `spacing-xs` | 4px | Chip padding, icon gap |
-| `spacing-sm` | 8px | Between related items |
-| `spacing-md` | 16px | Card padding, form field gap |
-| `spacing-lg` | 24px | Between card sections |
-| `spacing-xl` | 32px | Page-level padding |
-| `spacing-2xl` | 48px | Empty-state illustrations |
+| `element-gap-tight` | 4px | Chip padding, icon gap |
+| `element-gap-md` | 8px | Between related items |
+| `gutter` | 16px | Card padding, form field gap |
+| `container-padding` | 24px | Between card sections, page padding |
+| `section-gap` | 32px | Between major page sections |
 
 ### 1.4 Angular Material Theme
 
-Configure a custom theme in `styles.scss`:
+Configure a custom theme in `styles.scss` using the Nordic primary palette:
 
 ```scss
 @use '@angular/material' as mat;
 
-$cosmolab-primary: mat.define-palette(mat.$teal-palette, 700, 100, 900);
-$cosmolab-accent:  mat.define-palette(mat.$orange-palette, 600, 100, 900);
-$cosmolab-warn:    mat.define-palette(mat.$red-palette, 700);
+// Nordic Clinical primary palette (forest green anchored on #00342b)
+$nordic-primary-map: (
+  50: #e0f2ee, 100: #b2dfda, 200: #80cab8, 300: #4db596,
+  400: #26a67f, 500: #00976a, 600: #008060, 700: #006a4e,
+  800: #004d40, 900: #00342b,
+  A100: #94d3c1, A200: #7ebdac, A400: #29695b, A700: #065043,
+  contrast: ( ... 50–400: rgba(0,0,0,0.87), 500–900: #ffffff )
+);
+
+$cosmolab-primary: mat.define-palette($nordic-primary-map, 900, 100, 700);
+$cosmolab-accent:  mat.define-palette(mat.$amber-palette, 700, 200, 900);
+$cosmolab-warn:    mat.define-palette(mat.$red-palette, 800);
 
 $cosmolab-theme: mat.define-light-theme((
   color: (primary: $cosmolab-primary, accent: $cosmolab-accent, warn: $cosmolab-warn),
-  typography: mat.define-typography-config($font-family: 'Roboto, sans-serif'),
+  typography: mat.define-typography-config(
+    $font-family: "'Inter', sans-serif",
+    $body-1: mat.define-typography-level(14px, 20px, 400),
+    $subtitle-1: mat.define-typography-level(16px, 24px, 600),
+    $headline-5: mat.define-typography-level(28px, 36px, 600, $letter-spacing: -0.02em),
+  ),
   density: -1
 ));
 
@@ -147,11 +165,11 @@ Flag icons use `mat-icon` with `warning` (amber) and `error` (red) icon names, s
 | Admin link | icon button, navigates `/admin` | `data-testid="admin-link"` |
 | User indicator | green dot + "Demo User" label | Non-interactive; `data-testid="user-indicator"` |
 
-Toolbar background: `primary-700` (#00695C). All text and icons: white.
+Toolbar background: `surface-container-lowest` (`#ffffff`) with `1px solid outline-variant` bottom border. Brand wordmark in `primary` (`#00342b`). Icons and text: `on-surface` (`#1a1c1c`).
 
 ### 2.3 Sidenav (`AppSidenavComponent`)
 
-Background: `primary-900` (#004D40). Text: white at 87% opacity. Active item: `primary-100` text on `primary-700` background.
+Background: `primary` (`#00342b`). Text: white at 87% opacity. Active item: `primary-fixed` (`#afefdd`) text on `rgba(175,239,221,0.15)` background (tonal overlay).
 
 ```
 ┌────────────────────────────┐
